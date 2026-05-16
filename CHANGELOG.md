@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 (2026-05-16)
+
+Full Changelog: [v0.1.0...v0.2.0](https://github.com/jdw2111/propraven-typescript/compare/v0.1.0...v0.2.0)
+
+### Features
+
+* **api:** api update ([fde94f5](https://github.com/jdw2111/propraven-typescript/commit/fde94f56e8399a49b95a082749dcd7a8367e903d))
+
 ## 0.1.0 (2026-05-16)
 
 Full Changelog: [v0.0.1...v0.1.0](https://github.com/jdw2111/propraven-typescript/compare/v0.0.1...v0.1.0)
