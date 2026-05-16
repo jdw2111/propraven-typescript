@@ -1,5 +1,5 @@
-import { multipartFormRequestOptions, createForm } from 'propraven/internal/uploads';
-import { toFile } from 'propraven/core/uploads';
+import { multipartFormRequestOptions, createForm } from '@propraven/sdk/internal/uploads';
+import { toFile } from '@propraven/sdk/core/uploads';
 
 describe('form data validation', () => {
   test('valid values do not error', async () => {

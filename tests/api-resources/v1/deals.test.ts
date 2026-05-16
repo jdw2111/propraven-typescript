@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import Propraven from 'propraven';
+import Propraven from '@propraven/sdk';
 
 const client = new Propraven({
   apiKey: 'My API Key',
