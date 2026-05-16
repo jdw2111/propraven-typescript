@@ -1,6 +1,6 @@
 import fs from 'fs';
-import type { ResponseLike } from 'propraven/internal/to-file';
-import { toFile } from 'propraven/core/uploads';
+import type { ResponseLike } from '@propraven/sdk/internal/to-file';
+import { toFile } from '@propraven/sdk/core/uploads';
 import { File } from 'node:buffer';
 
 class MyClass {
@@ -97,7 +97,7 @@ describe('missing File error message', () => {
   });
 
   test('is thrown', async () => {
-    const uploads = await import('propraven/core/uploads');
+    const uploads = await import('@propraven/sdk/core/uploads');
     await expect(
       uploads.toFile(mockResponse({ url: 'https://example.com/my/audio.mp3' })),
     ).rejects.toMatchInlineSnapshot(

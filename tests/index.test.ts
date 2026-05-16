@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { APIPromise } from 'propraven/core/api-promise';
+import { APIPromise } from '@propraven/sdk/core/api-promise';
 
 import util from 'node:util';
-import Propraven from 'propraven';
-import { APIUserAbortError } from 'propraven';
+import Propraven from '@propraven/sdk';
+import { APIUserAbortError } from '@propraven/sdk';
 const defaultFetch = fetch;
 
 describe('instantiate client', () => {

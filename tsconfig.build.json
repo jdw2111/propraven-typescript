@@ -5,8 +5,8 @@
   "compilerOptions": {
     "rootDir": "./dist/src",
     "paths": {
-      "propraven/*": ["./dist/src/*"],
-      "propraven": ["./dist/src/index.ts"]
+      "@propraven/sdk/*": ["./dist/src/*"],
+      "@propraven/sdk": ["./dist/src/index.ts"]
     },
     "noEmit": false,
     "declaration": true,
