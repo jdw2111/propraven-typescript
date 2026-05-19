@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1 (2026-05-19)
+
+Full Changelog: [v0.2.0...v0.2.1](https://github.com/jdw2111/propraven-typescript/compare/v0.2.0...v0.2.1)
+
+### Bug Fixes
+
+* **typescript:** upgrade tsc-multi so that it works with Node 26 ([b0cd972](https://github.com/jdw2111/propraven-typescript/commit/b0cd9721c42904771c2711dac0271f5c05f7f70e))
+
+
+### Chores
+
+* **tests:** remove redundant File import ([3c27e78](https://github.com/jdw2111/propraven-typescript/commit/3c27e78db88d3412a63feb4e2295067b34c52a9f))
+
 ## 0.2.0 (2026-05-16)
 
 Full Changelog: [v0.1.0...v0.2.0](https://github.com/jdw2111/propraven-typescript/compare/v0.1.0...v0.2.0)
