@@ -97,20 +97,23 @@ await step('search.fullAll (2 cursor pages)', async () => {
   return `${rows.length} results`;
 });
 
+await step('search.parcels (bounds)', async () => {
+  const r = await client.search.parcels({ bounds: { north: 35.79, south: 35.77, east: -78.63, west: -78.65 }, limit: 2 });
+  // Prefer the serving row's own composite id for the parcels.* calls below.
+  const row = r.data.find((p) => typeof p.id === 'string' && p.id);
+  if (row) parcelId = row.id;
+  return `${count(r)} rows, total=${r.total}, has_more=${r.has_more}`;
+});
+
 await step('parcels.get', async () => {
   const p = await client.parcels.get(parcelId);
   ownerName ??= p.owner_name ?? undefined;
-  return `parcel ${p.county_fips ?? '?'}/${p.parcel_id ?? '?'}; total_assessed_value is ${typeof p.total_assessed_value}`;
+  return `parcel ${parcelId}; total_assessed_value is ${typeof p.total_assessed_value}`;
 });
 
 await step('parcels.permits (envelope)', async () => {
   const r = await client.parcels.permits(parcelId, { shape: 'envelope' });
   return Array.isArray(r) ? `${r.length} permits (bare array)` : `${r.data.length} permits, permit_count=${r.permit_count} (${r.permit_count_basis})`;
-});
-
-await step('search.parcels (bounds)', async () => {
-  const r = await client.search.parcels({ bounds: { north: 35.79, south: 35.77, east: -78.63, west: -78.65 }, limit: 2 });
-  return `${count(r)} rows, total=${r.total}, has_more=${r.has_more}`;
 });
 
 await step('deals.absenteeAll (2 offset pages)', async () => {
