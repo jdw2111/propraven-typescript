@@ -88,6 +88,8 @@ import type {
   OwnersSearchResponse,
   OwnersTransactionsParams,
   OwnersTransactionsResponse,
+  ParcelsAssessmentHistoryParams,
+  ParcelsAssessmentHistoryResponse,
   ParcelsBatchParams,
   ParcelsBatchResponse,
   ParcelsCompPackParams,
@@ -737,6 +739,17 @@ export class OwnersResource extends APIResource {
 
 /** `client.parcels` */
 export class ParcelsResource extends APIResource {
+  /**
+   * Get recorded annual assessment history
+   *
+   * Returns source-backed historical assessment observations from published county history. Uses exact national parcel identity. Never substitutes the current parcel snapshot. Unknown assessment years remain null; vintage years and tax years are distinct. Missing years are not interpolated. County coverage can be partial by town and year. Unpublished coverage and failed reads return 503, not an empty history. Requires normal API or first-party session authentication.
+   *
+   * `GET /api/v1/parcels/{id}/assessment-history`
+   */
+  assessmentHistory(id: string, params: ParcelsAssessmentHistoryParams = {}, options?: RequestOptions): APIPromise<ParcelsAssessmentHistoryResponse> {
+    return this._client._call<ParcelsAssessmentHistoryResponse>(ops.parcels_assessmentHistory, [id], params, options);
+  }
+
   /**
    * Fetch up to 100 parcels by (state, county, parcel) tuple
    *

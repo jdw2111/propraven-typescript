@@ -49,7 +49,7 @@ export abstract class GeneratedClient extends BaseClient {
   readonly market: MarketResource = new MarketResource(this);
   /** 7 operations. */
   readonly owners: OwnersResource = new OwnersResource(this);
-  /** 15 operations. */
+  /** 16 operations. */
   readonly parcels: ParcelsResource = new ParcelsResource(this);
   /** 4 operations. */
   readonly search: SearchResource = new SearchResource(this);
@@ -66,4 +66,4 @@ export abstract class GeneratedClient extends BaseClient {
 }
 
 /** Number of operations generated from openapi.json. */
-export const OPERATION_COUNT = 69;
+export const OPERATION_COUNT = 70;

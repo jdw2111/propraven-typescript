@@ -915,6 +915,22 @@ export const owners_transactions: OperationDescriptor = {
   "accept": "application/json"
 };
 
+export const parcels_assessmentHistory: OperationDescriptor = {
+  "operationId": "getParcelAssessmentHistory",
+  "group": "parcels",
+  "method": "assessmentHistory",
+  "httpMethod": "GET",
+  "path": "/api/v1/parcels/{id}/assessment-history",
+  "pathParams": [
+    "id"
+  ],
+  "query": {},
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
 export const parcels_batch: OperationDescriptor = {
   "operationId": "getParcelsBatch",
   "group": "parcels",
@@ -1719,6 +1735,7 @@ export const operations: readonly OperationDescriptor[] = [
   owners_report,
   owners_search,
   owners_transactions,
+  parcels_assessmentHistory,
   parcels_batch,
   parcels_compPack,
   parcels_comps,

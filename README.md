@@ -203,7 +203,7 @@ Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes 
 ## Methods
 
 <!-- generated:methods:start (scripts/generate.mjs) -->
-69 operations in 19 namespaces.
+70 operations in 19 namespaces.
 
 | Method | HTTP | Summary |
 | --- | --- | --- |
@@ -242,6 +242,7 @@ Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes 
 | `client.owners.report(name, params?)` | `GET /api/v1/owners/{name}/report` | Owner intelligence report (paid, priced per resolution; account required) — with a free preview |
 | `client.owners.search(params)` | `GET /api/v1/owners/search` | Search property owners |
 | `client.owners.transactions(name, params?)` | `GET /api/v1/owners/{name}/transactions` | Recorded deed transactions for an owner |
+| `client.parcels.assessmentHistory(id, params?)` | `GET /api/v1/parcels/{id}/assessment-history` | Get recorded annual assessment history |
 | `client.parcels.batch(params)` | `POST /api/v1/parcels/batch` | Fetch up to 100 parcels by (state, county, parcel) tuple |
 | `client.parcels.compPack(id, params?)` | `GET /api/v1/parcels/{id}/comp-pack` | Comp pack (paid, priced per pack) — with a FREE preview |
 | `client.parcels.comps(id, params?)` | `GET /api/v1/parcels/{id}/comps` | Comparable sales for a parcel |

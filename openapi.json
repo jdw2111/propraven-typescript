@@ -26,6 +26,101 @@
     }
   ],
   "paths": {
+    "/api/v1/parcels/{id}/assessment-history": {
+      "get": {
+        "operationId": "getParcelAssessmentHistory",
+        "summary": "Get recorded annual assessment history",
+        "description": "Returns source-backed historical assessment observations from published county history. Uses exact national parcel identity. Never substitutes the current parcel snapshot. Unknown assessment years remain null; vintage years and tax years are distinct. Missing years are not interpolated. County coverage can be partial by town and year. Unpublished coverage and failed reads return 503, not an empty history. Requires normal API or first-party session authentication.",
+        "tags": [
+          "Parcels"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Canonical state_fips:county_fips:parcel_id, legacy county5:parcel_id, or parcel UUID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Known published coverage; records may be empty for this parcel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssessmentHistory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or ambiguous parcel identifier.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Parcel UUID not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Parcel UUID resolves to conflicting national identities.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "History source is unavailable or not published for this county.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-sdk-group": "parcels",
+        "x-sdk-method": "assessmentHistory"
+      }
+    },
     "/api/v1/parcels/{id}": {
       "get": {
         "operationId": "getParcel",
@@ -68,20 +163,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -1115,20 +1210,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -1237,20 +1332,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -1383,20 +1478,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -1448,20 +1543,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -2056,17 +2151,17 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -2348,20 +2443,20 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         },
         "security": [
@@ -2590,23 +2685,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -2876,23 +2971,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "deals",
@@ -3185,23 +3280,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "market",
@@ -3362,23 +3457,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "market",
@@ -3469,23 +3564,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -3542,26 +3637,26 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "owners",
@@ -3775,26 +3870,26 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "owners",
@@ -4213,20 +4308,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -4700,16 +4795,6 @@
               }
             }
           },
-          "401": {
-            "description": "No account: an anonymous caller (including one presenting only an x402 X-PAYMENT header or an X-CREDIT-TOKEN) gets problem+json with code `account_required` and reason `owner_lookup_requires_account`; or a present-but-invalid API key.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
           "402": {
             "description": "Payment required. accepts[0].maxAmountRequired carries this resolution's exact price (portfolio size x value, floor $0.25, cap $20) in USDC atomic units. Pay per call via x402, hold a paid PropRaven subscription, or re-call with preview=true for the free masked summary.",
             "content": {
@@ -4720,8 +4805,15 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
+          "401": {
+            "description": "No account: an anonymous caller (including one presenting only an x402 X-PAYMENT header or an X-CREDIT-TOKEN) gets problem+json with code `account_required` and reason `owner_lookup_requires_account`; or a present-but-invalid API key.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           },
           "429": {
             "description": "Rate limited.",
@@ -4732,6 +4824,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -4895,23 +4990,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "503": {
             "$ref": "#/components/responses/ServiceUnavailable"
@@ -5126,17 +5221,17 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -5188,8 +5283,8 @@
             "required": false,
             "schema": {
               "type": "number",
-              "default": 3,
-              "minimum": 1
+              "default": 3.0,
+              "minimum": 1.0
             },
             "description": "Minimum land/improvement ratio."
           },
@@ -5295,17 +5390,17 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "deals",
@@ -5423,23 +5518,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "503": {
             "$ref": "#/components/responses/ServiceUnavailable"
@@ -5603,17 +5698,17 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -5840,23 +5935,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "deals",
@@ -5990,23 +6085,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -6085,11 +6180,11 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6152,8 +6247,15 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
+          "422": {
+            "description": "One or more parcel ids do not name exactly one parcel (`code: parcel_identity_unresolved`). `issues[]` lists each input with `code` (parcel_id_ambiguous | parcel_not_found | invalid_parcel_identifier) and, when ambiguous, the candidate canonical ids. Nothing was created.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           },
           "402": {
             "description": "Tier quota reached or feature gated. Body includes upgrade guidance.",
@@ -6165,25 +6267,6 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
-          "422": {
-            "description": "One or more parcel ids do not name exactly one parcel (`code: parcel_identity_unresolved`). `issues[]` lists each input with `code` (parcel_id_ambiguous | parcel_not_found | invalid_parcel_identifier) and, when ambiguous, the candidate canonical ids. Nothing was created.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
-          },
           "501": {
             "description": "One or more event types are accepted by the API but not yet emitted by the scanner. Only `parcel.sold` is live in v1.0.",
             "content": {
@@ -6193,6 +6276,18 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
         "x-sdk-group": "webhooks",
@@ -6246,20 +6341,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6320,20 +6415,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6398,20 +6493,20 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6468,17 +6563,17 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6621,17 +6716,17 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6787,17 +6882,17 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -6883,11 +6978,11 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -7002,12 +7097,6 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "402": {
             "description": "Payment required. This is a paid, value-tiered dossier: the response body's accepts[0].maxAmountRequired carries this parcel's exact price in USDC atomic units. Pay per call via x402 (send the `X-PAYMENT` header), or hold a paid PropRaven subscription. A free-tier or self-service first-party key with no paid plan also receives this 402.",
             "content": {
@@ -7018,14 +7107,20 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -7363,8 +7458,15 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+          "402": {
+            "description": "Payment required. accepts[0].maxAmountRequired carries this pack's exact price (subject value x comp support, floor $1, cap $20) in USDC atomic units. Pay per call via x402, hold a paid subscription, or re-call with preview=true.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentRequired"
+                }
+              }
+            }
           },
           "401": {
             "description": "A present-but-invalid API key.",
@@ -7372,16 +7474,6 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required. accepts[0].maxAmountRequired carries this pack's exact price (subject value x comp support, floor $1, cap $20) in USDC atomic units. Pay per call via x402, hold a paid subscription, or re-call with preview=true.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/X402PaymentRequired"
                 }
               }
             }
@@ -7395,6 +7487,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
@@ -7611,8 +7706,15 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+          "402": {
+            "description": "Payment required. accepts[0].maxAmountRequired carries this assessment's exact price (asset value x hazard coverage, floor $0.20, cap $20) in USDC atomic units.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentRequired"
+                }
+              }
+            }
           },
           "401": {
             "description": "A present-but-invalid API key.",
@@ -7620,16 +7722,6 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required. accepts[0].maxAmountRequired carries this assessment's exact price (asset value x hazard coverage, floor $0.20, cap $20) in USDC atomic units.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/X402PaymentRequired"
                 }
               }
             }
@@ -7643,6 +7735,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
@@ -7737,11 +7832,11 @@
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -7815,11 +7910,11 @@
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -7923,23 +8018,23 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           }
         },
         "x-sdk-group": "market",
@@ -8008,26 +8103,26 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
           },
           "504": {
             "$ref": "#/components/responses/GatewayTimeout"
@@ -8075,11 +8170,11 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -9611,17 +9706,17 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
+          "429": {
+            "$ref": "#/components/responses/RateLimitExceeded"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
-          "429": {
-            "$ref": "#/components/responses/RateLimitExceeded"
-          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         },
         "x-sdk-group": "storefront",
@@ -10703,9 +10798,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "description": "PARCEL mode: the parcel does not resolve, or has no serving row in the current epoch (so no dossier can be priced). JURISDICTION mode: the state/county is not served.",
             "content": {
@@ -10716,14 +10808,17 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
           },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         },
         "x-sdk-group": "storefront",
@@ -10900,6 +10995,16 @@
               }
             }
           },
+          "402": {
+            "description": "Payment required. accepts[0].maxAmountRequired carries this pull's exact total (count x per-lead, capped at $20) in USDC atomic units. Pay per call via x402, hold a paid PropRaven subscription, or re-call with preview=true for the free masked preview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentRequired"
+                }
+              }
+            }
+          },
           "401": {
             "description": "No account on a paid (non-preview) pull -- leads are people data (`code: \"account_required\"`, `reason: \"people_data_requires_account\"`), including a wallet-only x402 or credit-token caller -- or an invalid API key.",
             "content": {
@@ -10918,24 +11023,8 @@
               }
             }
           },
-          "402": {
-            "description": "Payment required. accepts[0].maxAmountRequired carries this pull's exact total (count x per-lead, capped at $20) in USDC atomic units. Pay per call via x402, hold a paid PropRaven subscription, or re-call with preview=true for the free masked preview.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/X402PaymentRequired"
-                }
-              }
-            }
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
           },
           "503": {
             "description": "The pull was too broad to finish within its time bound (problem+json, `code: \"lead_read_timeout\"` -- narrow with `county`), or the people-data access log was unavailable (JSON `error`). Nothing is charged: a credit draw is refunded and an x402 claim released.",
@@ -10951,6 +11040,12 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
         "x-sdk-group": "leads",
@@ -11018,19 +11113,6 @@
               }
             }
           },
-          "400": {
-            "description": "Invalid amount.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "402": {
             "description": "Payment required — accepts[0].maxAmountRequired carries the amount in USDC atomic units.",
             "content": {
@@ -11041,11 +11123,24 @@
               }
             }
           },
+          "400": {
+            "description": "Invalid amount.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         },
         "x-sdk-group": "credits",
@@ -11093,9 +11188,6 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "description": "Missing/invalid credit token.",
             "content": {
@@ -11105,6 +11197,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
@@ -11158,9 +11253,6 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "description": "Missing/invalid credit token.",
             "content": {
@@ -11170,6 +11262,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
@@ -11241,9 +11336,6 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "422": {
             "description": "One or more parcel ids do not name exactly one parcel (problem+json, `code: parcel_identity_unresolved`, `issues[]` with per-input reason codes and candidate canonical ids). Nothing was created.",
             "content": {
@@ -11253,6 +11345,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -11400,11 +11495,8 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "description": "Missing/invalid credit token.",
+          "402": {
+            "description": "Insufficient credit balance for the pending deltas; top up and re-poll.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -11413,8 +11505,8 @@
               }
             }
           },
-          "402": {
-            "description": "Insufficient credit balance for the pending deltas; top up and re-poll.",
+          "401": {
+            "description": "Missing/invalid credit token.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -11432,6 +11524,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
@@ -11492,12 +11587,6 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "description": "Watch not found.",
             "content": {
@@ -11508,11 +11597,17 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         },
         "x-sdk-group": "watch",
@@ -11776,6 +11871,16 @@
               }
             }
           },
+          "402": {
+            "description": "Payment required — accepts[0].maxAmountRequired carries the batch price (USDC atomic units).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentRequired"
+                }
+              }
+            }
+          },
           "400": {
             "description": "No valid lookups.",
             "content": {
@@ -11800,16 +11905,6 @@
                   "detail": "Owner names, owner mailing addresses and other people data require a PropRaven account.",
                   "code": "account_required",
                   "reason": "people_data_requires_account"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required — accepts[0].maxAmountRequired carries the batch price (USDC atomic units).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/X402PaymentRequired"
                 }
               }
             }
@@ -12146,6 +12241,16 @@
               }
             }
           },
+          "402": {
+            "description": "Payment required — accepts[0].maxAmountRequired carries the batch price (USDC atomic units).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentRequired"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Missing parcel_id/fields.",
             "content": {
@@ -12170,16 +12275,6 @@
                   "detail": "Owner names, owner mailing addresses and other people data require a PropRaven account.",
                   "code": "account_required",
                   "reason": "people_data_requires_account"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required — accepts[0].maxAmountRequired carries the batch price (USDC atomic units).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/X402PaymentRequired"
                 }
               }
             }
@@ -12310,14 +12405,8 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
           },
           "503": {
             "description": "The lookup meter was unavailable; the card was not served and nothing was charged.",
@@ -12328,6 +12417,12 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
         "x-sdk-group": "owners",
@@ -12452,9 +12547,6 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "description": "No account (`code: \"account_required\"`, `reason: \"people_data_requires_account\"`), or an invalid API key.",
             "content": {
@@ -12493,12 +12585,6 @@
               }
             }
           },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
-          },
           "503": {
             "description": "The people-data access log was unavailable; the export was not made and nothing was charged.",
             "content": {
@@ -12508,6 +12594,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         },
         "x-sdk-group": "cohorts",
@@ -13515,6 +13610,16 @@
               }
             }
           },
+          "413": {
+            "description": "More than 100 unique tuples.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
@@ -13526,16 +13631,6 @@
           },
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
-          },
-          "413": {
-            "description": "More than 100 unique tuples.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
@@ -17477,7 +17572,37 @@
             "description": "The re-queued delivery.",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "next_attempt_at",
+                    "attempts"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending"
+                      ]
+                    },
+                    "next_attempt_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "attempts": {
+                      "type": "integer"
+                    }
+                  }
+                }
               }
             },
             "headers": {
@@ -17492,15 +17617,6 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "405": {
-            "$ref": "#/components/responses/MethodNotAllowed"
-          },
           "409": {
             "description": "The delivery is not retryable.",
             "content": {
@@ -17510,6 +17626,15 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/RateLimitExceeded"
@@ -17671,6 +17796,184 @@
       }
     },
     "schemas": {
+      "AssessmentHistoryRecord": {
+        "type": "object",
+        "required": [
+          "assessment_year",
+          "tax_year",
+          "vintage_year",
+          "total_value",
+          "land_value",
+          "improvement_value",
+          "tax_amount",
+          "tax_paid_amount",
+          "vintage",
+          "source_url",
+          "source_as_of",
+          "value_basis",
+          "source"
+        ],
+        "properties": {
+          "assessment_year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Source-stated year; null means unknown. Never inferred from a snapshot or capture date."
+          },
+          "tax_year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Source-stated year; null means unknown. Never inferred from a snapshot or capture date."
+          },
+          "vintage_year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Snapshot vintage year, not an assessment year."
+          },
+          "total_value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "land_value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "improvement_value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "tax_amount": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "tax_paid_amount": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "vintage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_as_of": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value_basis": {
+            "type": "string",
+            "enum": [
+              "assessed",
+              "appraised",
+              "market",
+              "taxable"
+            ]
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "AssessmentHistory": {
+        "type": "object",
+        "required": [
+          "canonical_id",
+          "status",
+          "records",
+          "coverage"
+        ],
+        "properties": {
+          "canonical_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "empty"
+            ]
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentHistoryRecord"
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "assessment_years",
+              "tax_years",
+              "record_count",
+              "truncated",
+              "limit",
+              "note",
+              "source_product",
+              "source_version"
+            ],
+            "properties": {
+              "assessment_years": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "tax_years": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "record_count": {
+                "type": "integer"
+              },
+              "truncated": {
+                "type": "boolean"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "note": {
+                "type": "string"
+              },
+              "source_product": {
+                "type": "string"
+              },
+              "source_version": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "Parcel": {
         "type": "object",
         "required": [
@@ -17765,21 +18068,24 @@
         ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid",
+            "description": "PropRaven parcel UUID. Accepted by GET /parcels/{id}."
           },
           "county_fips": {
             "type": "string",
-            "description": "5-digit county FIPS code.",
-            "example": "37183"
+            "description": "3-digit within-state county FIPS code (the 5-digit form is `state_fips` + `county_fips`).",
+            "example": "119"
           },
           "state_fips": {
             "type": "string",
+            "description": "2-digit state FIPS code.",
             "example": "37"
           },
           "parcel_id": {
             "type": "string",
-            "description": "County-assigned parcel identifier.",
-            "example": "0012345"
+            "description": "County-assigned parcel identifier (APN as the county publishes it). The canonical id is `state_fips:county_fips:parcel_id`.",
+            "example": "12104406"
           },
           "address": {
             "type": [
@@ -17803,9 +18109,10 @@
           },
           "state": {
             "type": [
-              "number",
+              "integer",
               "null"
-            ]
+            ],
+            "description": "State FIPS as a number (legacy duplicate of `state_fips`)."
           },
           "zip": {
             "type": [
@@ -21092,7 +21399,8 @@
               ],
               "properties": {
                 "parcel_id": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "PropRaven parcel UUID (not the county APN; see `apn`). Pass it to GET /parcels/{id}."
                 },
                 "apn": {
                   "type": [

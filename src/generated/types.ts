@@ -38,6 +38,41 @@ export interface AffordabilityRow {
   pct_income_for_housing?: number | null;
 }
 
+export interface AssessmentHistory {
+  canonical_id: string;
+  status: "ok" | "empty";
+  records: Array<AssessmentHistoryRecord>;
+  coverage: {
+    assessment_years: Array<number>;
+    tax_years: Array<number>;
+    record_count: number;
+    truncated: boolean;
+    limit: number;
+    note: string;
+    source_product: string;
+    source_version: string;
+  };
+}
+
+export interface AssessmentHistoryRecord {
+  /** Source-stated year; null means unknown. Never inferred from a snapshot or capture date. */
+  assessment_year: number | null;
+  /** Source-stated year; null means unknown. Never inferred from a snapshot or capture date. */
+  tax_year: number | null;
+  /** Snapshot vintage year, not an assessment year. */
+  vintage_year: number | null;
+  total_value: number | null;
+  land_value: number | null;
+  improvement_value: number | null;
+  tax_amount: number | null;
+  tax_paid_amount: number | null;
+  vintage: string | null;
+  source_url: string | null;
+  source_as_of: string | null;
+  value_basis: "assessed" | "appraised" | "market" | "taxable";
+  source: string;
+}
+
 /** Mapbox-geocoded address suggestion. Use to disambiguate user input before calling /api/v1/lookup or /api/v1/parcels/{id}. */
 export interface AutocompleteAddress {
   name: string | null;
@@ -290,6 +325,7 @@ export type ErrorSchema = Problem;
 
 export interface FullSearchResult {
   results: Array<{
+    /** PropRaven parcel UUID (not the county APN; see `apn`). Pass it to GET /parcels/{id}. */
     parcel_id: string;
     apn: string | null;
     county_fips: string;
@@ -751,15 +787,18 @@ export interface OwnerTransaction {
 }
 
 export interface Parcel {
+  /** PropRaven parcel UUID. Accepted by GET /parcels/{id}. */
   id: string;
-  /** 5-digit county FIPS code. */
+  /** 3-digit within-state county FIPS code (the 5-digit form is `state_fips` + `county_fips`). */
   county_fips: string;
+  /** 2-digit state FIPS code. */
   state_fips: string;
-  /** County-assigned parcel identifier. */
+  /** County-assigned parcel identifier (APN as the county publishes it). The canonical id is `state_fips:county_fips:parcel_id`. */
   parcel_id: string;
   address: string | null;
   normalized_address: string | null;
   city: string | null;
+  /** State FIPS as a number (legacy duplicate of `state_fips`). */
   state: number | null;
   zip: string | null;
   zip5: string | null;
@@ -3200,6 +3239,14 @@ export interface OwnersTransactionsResponse {
   count?: number;
 }
 
+// GET /api/v1/parcels/{id}/assessment-history (parcels.assessmentHistory)
+
+/** Parameters for `parcels.assessmentHistory` (the operation takes none). */
+export type ParcelsAssessmentHistoryParams = Record<string, never>;
+
+/** Success response of `parcels.assessmentHistory` (GET /api/v1/parcels/{id}/assessment-history). */
+export type ParcelsAssessmentHistoryResponse = AssessmentHistory;
+
 // POST /api/v1/parcels/batch (parcels.batch)
 
 /** Parameters for `parcels.batch`. */
@@ -5111,4 +5158,9 @@ export interface WebhooksListResponse {
 export type WebhooksRetryDeliveryParams = Record<string, never>;
 
 /** Success response of `webhooks.retryDelivery` (POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry). */
-export type WebhooksRetryDeliveryResponse = unknown;
+export interface WebhooksRetryDeliveryResponse {
+  id: string;
+  status: "pending";
+  next_attempt_at: string | null;
+  attempts: number;
+}
