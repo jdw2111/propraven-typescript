@@ -1,101 +1,37 @@
-## Setting up the environment
+# Contributing
 
-This repository uses [`pnpm`](https://pnpm.io/).
-Other package managers may work but are not officially supported for development.
-
-To set up the repository, run:
+## Setup
 
 ```sh
-$ pnpm install
-$ pnpm build
+npm ci
+npm run generate:check   # generated code matches openapi.json
+npm run typecheck
+npm test                 # vitest, mocked fetch, no network (Node >= 22 for the test runner)
+npm run build            # dist/esm + dist/cjs
+npm run smoke:dist       # plain-Node checks of the built package (works on Node 18+)
 ```
 
-This will install all the required dependencies and build output files to `dist/`.
+## Layout
 
-## Modifying/Adding code
+- `openapi.json` — the vendored API spec (source of truth for the generated layer).
+- `scripts/generate.mjs` — the generator. It writes `src/generated/*` and the method table in `README.md`.
+  Never edit generated files by hand; change the spec or the generator and run `npm run generate`.
+- `src/core/`, `src/client.ts`, `src/webhooks.ts`, `src/index.ts` — the hand-written core.
+- `scripts/live-smoke.mjs` — a read-only smoke test against the real API (not run in CI):
+  `npm run build && PROPRAVEN_API_KEY=pz_... node scripts/live-smoke.mjs`.
 
-Most of the SDK is generated code. Modifications to code will be persisted between generations, but may
-result in merge conflicts between manual patches and changes from the generator. The generator will never
-modify the contents of the `src/lib/` and `examples/` directories.
-
-## Adding and running examples
-
-All files in the `examples/` directory are not modified by the generator and can be freely edited or added to.
-
-```ts
-// add an example to examples/<your-example>.ts
-
-#!/usr/bin/env -S npm run tsn -T
-…
-```
+## Updating the spec
 
 ```sh
-$ chmod +x examples/<your-example>.ts
-# run the example against your api
-$ pnpm tsn -T examples/<your-example>.ts
+npm run spec:update -- /path/to/openapi.json   # or a URL (default https://propraven.com/openapi.json)
+npm run generate && npm run typecheck && npm test
 ```
 
-## Using the repository from source
+Every operation needs `x-sdk-group` and `x-sdk-method` (and `x-sdk-pagination` when it pages); the generator
+refuses specs without them.
 
-If you’d like to use the repository from source, you can either install from git or link to a cloned repository:
+## Releasing
 
-To install via git:
-
-```sh
-$ npm install git+ssh://git@github.com:jdw2111/propraven-typescript.git
-```
-
-Alternatively, to link a local copy of the repo:
-
-```sh
-# Clone
-$ git clone https://www.github.com/jdw2111/propraven-typescript
-$ cd propraven-typescript
-
-# With yarn
-$ yarn link
-$ cd ../my-package
-$ yarn link @propraven/sdk
-
-# With pnpm
-$ pnpm link --global
-$ cd ../my-package
-$ pnpm link --global @propraven/sdk
-```
-
-## Running tests
-
-```sh
-$ pnpm run test
-```
-
-## Linting and formatting
-
-This repository uses [prettier](https://www.npmjs.com/package/prettier) and
-[eslint](https://www.npmjs.com/package/eslint) to format the code in the repository.
-
-To lint:
-
-```sh
-$ pnpm lint
-```
-
-To format and fix all lint issues automatically:
-
-```sh
-$ pnpm fix
-```
-
-## Publishing and releases
-
-Changes made to this repository via the automated release PR pipeline should publish to npm automatically. If
-the changes aren't made through the automated pipeline, you may want to make releases manually.
-
-### Publish with a GitHub workflow
-
-You can release to package managers by using [the `Publish NPM` GitHub action](https://www.github.com/jdw2111/propraven-typescript/actions/workflows/publish-npm.yml). This requires a setup organization or repository secret to be set up.
-
-### Publish manually
-
-If you need to manually release a package, you can run the `bin/publish-npm` script with an `NPM_TOKEN` set on
-the environment.
+1. Bump `version` in `package.json` and `src/version.ts`, and add a `CHANGELOG.md` entry.
+2. Merge to `main`, then publish a GitHub release `vX.Y.Z`. `.github/workflows/publish-npm.yml` builds, tests and
+   publishes with npm trusted publishing (it skips if the version is already on npm).

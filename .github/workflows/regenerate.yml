@@ -1,0 +1,80 @@
+# Daily (and on demand): pull the live OpenAPI spec, regenerate the typed layer, run the
+# tests, and open or update a PR on branch `spec-sync` when anything changed.
+# Note: PRs opened with GITHUB_TOKEN do not trigger other workflows; close and reopen the PR
+# (or push to it) to run CI on it.
+name: Regenerate from openapi.json
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: regenerate
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: main
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Download the live spec
+        run: node scripts/update-spec.mjs https://propraven.com/openapi.json
+
+      - run: npm ci
+
+      - name: Regenerate
+        run: npm run generate
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "openapi.json is unchanged; nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat
+          fi
+
+      - name: Test
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+
+      - name: Open or update the spec-sync PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B spec-sync
+          git add -A
+          git commit -m "chore: sync openapi.json from propraven.com and regenerate"
+          git push --force origin spec-sync
+          BODY="Automated by .github/workflows/regenerate.yml: downloaded https://propraven.com/openapi.json, ran \`npm run generate\`, typecheck, tests and build (all passed).
+
+          Review the generated diff for breaking changes before merging, then bump the version and update CHANGELOG.md for a release."
+          PR="$(gh pr list --head spec-sync --base main --state open --json number --jq '.[0].number')"
+          if [ -n "$PR" ]; then
+            gh pr edit "$PR" --body "$BODY"
+            echo "Updated PR #$PR"
+          else
+            gh pr create --base main --head spec-sync --title "chore: sync openapi.json from propraven.com" --body "$BODY"
+          fi

@@ -1,364 +1,302 @@
-# Propraven TypeScript API Library
+# PropRaven TypeScript SDK
 
-[![NPM version](<https://img.shields.io/npm/v/@propraven/sdk.svg?label=npm%20(stable)>)](https://npmjs.org/package/@propraven/sdk) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@propraven/sdk)
+[![npm](https://img.shields.io/npm/v/@propraven/sdk.svg)](https://www.npmjs.com/package/@propraven/sdk)
 
-This library provides convenient access to the Propraven REST API from server-side TypeScript or JavaScript.
+The official TypeScript / JavaScript client for the [PropRaven](https://propraven.com) property intelligence API:
+US parcels, owners, permits, deeds, deal screens, market data and webhooks.
 
-The REST API documentation can be found on [propraven.com](https://propraven.com/docs). The full API of this library can be found in [api.md](api.md).
+- Typed methods for every operation in the API's OpenAPI spec, generated from [`openapi.json`](openapi.json).
+- Zero runtime dependencies (uses the global `fetch`), Node.js 18+, ESM and CommonJS, with type definitions.
+- Retries with backoff, RFC 7807 errors as typed exceptions, auto-pagination, webhook verification and rate-limit info.
 
-It is generated with [Stainless](https://www.stainless.com/).
+Docs: [propraven.com/docs/typescript](https://propraven.com/docs/typescript) · REST reference: [propraven.com/docs/v1](https://propraven.com/docs/v1) · Developer hub: [propraven.com/developers](https://propraven.com/developers) · Hosted MCP server: [propraven.com/docs/mcp](https://propraven.com/docs/mcp)
 
-## Documentation
+> **Server-side only.** The REST API sends no CORS headers and API keys are secret, so the client refuses to run in a
+> browser (it throws if `window` and `document` exist) unless you pass `dangerouslyAllowBrowser: true`. Call PropRaven
+> from your server, a serverless function or a script.
 
-PropRaven developer hub: [propraven.com/developers](https://propraven.com/developers) · Hosted MCP server: [propraven.com/docs/mcp](https://propraven.com/docs/mcp) · REST API v1 reference: [propraven.com/docs/v1](https://propraven.com/docs/v1).
-
-## Installation
+## Install
 
 ```sh
 npm install @propraven/sdk
 ```
 
-## Usage
+## Quick start
 
-The full API of this library can be found in [api.md](api.md).
+```ts
+import PropRaven from '@propraven/sdk';
 
-<!-- prettier-ignore -->
-```js
-import Propraven from '@propraven/sdk';
+const client = new PropRaven(); // reads PROPRAVEN_API_KEY from the environment
 
-const client = new Propraven({
-  apiKey: process.env['PROPRAVEN_API_KEY'], // This is the default and can be omitted
+const parcel = await client.parcels.get('37:119:12104406');
+console.log(parcel.address, parcel.total_assessed_value);
+
+const permits = await client.parcels.permits('37:119:12104406', { shape: 'envelope' });
+
+const page = await client.search.parcels({
+  bounds: { north: 35.85, south: 35.75, east: -78.55, west: -78.7 },
+  filters: { absenteeOnly: true },
+  limit: 25,
 });
-
-const parcel = await client.v1.parcels.retrieve('REPLACE_ME');
-
-console.log(parcel.parcel_id);
 ```
 
-### Request & Response types
+CommonJS works too: `const { PropRaven } = require('@propraven/sdk');`.
 
-This library includes TypeScript definitions for all request params and response fields. You may import and use them like so:
+### Calling convention
 
-<!-- prettier-ignore -->
+Every method takes its **path parameters positionally** (in path order), then **one params object** that holds the
+query parameters, header parameters and JSON body fields, then optional per-request options:
+
 ```ts
-import Propraven from '@propraven/sdk';
-
-const client = new Propraven({
-  apiKey: process.env['PROPRAVEN_API_KEY'], // This is the default and can be omitted
-});
-
-const parcel: Propraven.V1.Parcel = await client.v1.parcels.retrieve('REPLACE_ME');
+client.parcels.permits(id, { shape: 'envelope' }, { timeout: 10_000 });
+client.search.parcels({ bounds, filters, limit });         // body fields
+client.verify.get({ parcel_id: '37:119:12104406', fields: 'year_built', preview: 'true' });
 ```
 
-Documentation for each method, request param, and response field are available in docstrings and will appear on hover in most modern editors.
+Parameter names are the wire names (`county_fips`, `state_fips`, `min_value`). Header parameters get friendly names:
+`X-CREDIT-TOKEN` is `creditToken` and `X-PAYMENT` is `payment`. The SDK never signs x402 payments; a payment
+requirement surfaces as `PaymentRequiredError`.
 
-## Handling errors
+Responses are typed: `ParcelsGetResponse`, `DealsAbsenteeResponse`, ... (every component schema is exported as well,
+e.g. `Parcel`, `Owner`, `Permit`). Numbers are JSON numbers; identifiers (`parcel_id`, `apn`, `county_fips`,
+`state_fips`, `zip`) are strings. CSV endpoints (`search.export`) return a `string`.
 
-When the library is unable to connect to the API,
-or if the API returns a non-success status code (i.e., 4xx or 5xx response),
-a subclass of `APIError` will be thrown:
+## Authentication
 
-<!-- prettier-ignore -->
+Pass `apiKey`, or set `PROPRAVEN_API_KEY`. The key is sent as `Authorization: Bearer <key>`.
+
 ```ts
-const parcel = await client.v1.parcels.retrieve('REPLACE_ME').catch(async (err) => {
-  if (err instanceof Propraven.APIError) {
-    console.log(err.status); // 400
-    console.log(err.name); // BadRequestError
-    console.log(err.headers); // {server: 'nginx', ...}
+const client = new PropRaven({ apiKey: process.env.MY_PROPRAVEN_KEY });
+```
+
+PropRaven keys start with `pz_`; the client logs a warning (and still sends it) when a key does not. A missing key
+is allowed — several endpoints are key-optional (anonymous calls are limited to 100 a day and 60 a minute per IP) —
+and the server answers `401` where a key is required.
+
+## Errors
+
+Non-2xx responses throw a subclass of `APIError`, parsed from the API's RFC 7807 problem body (older `{error}` bodies
+and x402 `402` envelopes are understood too):
+
+```ts
+import PropRaven, { NotFoundError, RateLimitError, APIError } from '@propraven/sdk';
+
+try {
+  await client.parcels.get('37:119:0000');
+} catch (err) {
+  if (err instanceof NotFoundError) {
+    console.log('no such parcel');
+  } else if (err instanceof RateLimitError) {
+    console.log(`retry in ${err.retryAfter}s`);
+  } else if (err instanceof APIError) {
+    console.log(err.status, err.code, err.detail, err.errors, err.requestId);
   } else {
+    throw err;
+  }
+}
+```
+
+| Status | Class |
+| --- | --- |
+| 400 | `BadRequestError` (`errors` lists each bad `{param, message}`) |
+| 401 | `AuthenticationError` |
+| 402 | `PaymentRequiredError` (`accepts` holds the x402 requirements, empty otherwise) |
+| 403 | `PermissionDeniedError` |
+| 404 | `NotFoundError` |
+| 405 | `MethodNotAllowedError` |
+| 409 | `ConflictError` |
+| 413 | `PayloadTooLargeError` |
+| 422 | `UnprocessableEntityError` |
+| 429 | `RateLimitError` (`retryAfter` in seconds, or `null`) |
+| 503 | `ServiceUnavailableError` |
+| 504 | `GatewayTimeoutError` |
+| other 5xx | `InternalServerError` |
+| no response | `APIConnectionError`, `APITimeoutError` (a subclass) |
+| aborted via `signal` | `APIUserAbortError` |
+
+Every `APIError` has `status`, `type`, `title`, `detail`, `code`, `errors`, `requestId`, `headers`, `body` and
+`retryAfter`; its message is `"<status> <code>: <detail>"`. All errors extend `PropRavenError`. The classes are also
+available as statics (`PropRaven.NotFoundError`).
+
+## Retries and timeouts
+
+Failed requests are retried up to **2** times (`maxRetries`) on network errors, timeouts, `429`, `503` and `504` for
+any method, and on other `5xx` only for `GET`/`HEAD`/`DELETE`/`OPTIONS`. Other `4xx` — `402` in particular, whose
+`Retry-After` is in days — are never retried. The wait is the server's `Retry-After` (seconds or HTTP date), else the
+`X-RateLimit-Reset` of an exhausted window, else exponential backoff (0.5 s, 1 s, ... ±25% jitter). If the server asks
+for more than 60 s the error is raised instead of waiting.
+
+The default timeout is **60 s** (`timeout`, in milliseconds). Both can be set per client and per request:
+
+```ts
+const client = new PropRaven({ maxRetries: 4, timeout: 20_000 });
+await client.deals.absentee({ county_fips: '37119' }, { maxRetries: 0, timeout: 5_000 });
+```
+
+## Pagination
+
+Every paginated method `m` has an auto-paginating sibling `mAll` that returns an `AsyncIterable` of items. Offset
+endpoints advance `offset` (in the query string, or in the JSON body for `POST /search`) until a short page, `total`,
+or `has_more: false`; `search.full` follows `nextCursor` via `after`.
+
+```ts
+for await (const parcel of client.deals.absenteeAll({ county_fips: '37119' }, { pageSize: 100, maxItems: 1000 })) {
+  console.log(parcel.parcel_id);
+}
+
+const hits = await client.search.fullAll({ q: 'main st', state: 'NC' }, { maxItems: 200 }).toArray();
+```
+
+`pageSize` is sent as `limit`; `maxItems` bounds the total. The second argument also accepts the per-request options.
+
+## Webhooks
+
+Deliveries carry `X-PropRaven-Signature: t=<unix_ms>,v1=<hex>`, an HMAC-SHA256 of `` `${t}.${rawBody}` `` keyed with
+your webhook secret (`whsec_...`, used exactly as issued). Verify against the **raw** body:
+
+```ts
+import { verifyWebhook, WebhookVerificationError } from '@propraven/sdk/webhooks'; // or from '@propraven/sdk'
+
+app.post('/webhooks/propraven', express.raw({ type: 'application/json' }), (req, res) => {
+  try {
+    const event = verifyWebhook({
+      payload: req.body, // Buffer or string, exactly as received
+      signature: req.header('X-PropRaven-Signature'),
+      secret: process.env.PROPRAVEN_WEBHOOK_SECRET!,
+    });
+    console.log(event);
+    res.sendStatus(200);
+  } catch (err) {
+    if (err instanceof WebhookVerificationError) return res.sendStatus(400);
     throw err;
   }
 });
 ```
 
-Error codes are as follows:
+Timestamps more than `toleranceSeconds` (default 300) from now are rejected; several `v1=` entries are accepted
+(secret rotation); comparison is constant-time. The verifier is synchronous and dependency-free.
 
-| Status Code | Error Type                 |
-| ----------- | -------------------------- |
-| 400         | `BadRequestError`          |
-| 401         | `AuthenticationError`      |
-| 403         | `PermissionDeniedError`    |
-| 404         | `NotFoundError`            |
-| 422         | `UnprocessableEntityError` |
-| 429         | `RateLimitError`           |
-| >=500       | `InternalServerError`      |
-| N/A         | `APIConnectionError`       |
+## Rate-limit info
 
-### Retries
-
-Certain errors will be automatically retried 2 times by default, with a short exponential backoff.
-Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict,
-429 Rate Limit, and >=500 Internal errors will all be retried by default.
-
-You can use the `maxRetries` option to configure or disable this:
-
-<!-- prettier-ignore -->
-```js
-// Configure the default for all requests:
-const client = new Propraven({
-  maxRetries: 0, // default is 2
-});
-
-// Or, configure per-request:
-await client.v1.parcels.retrieve('REPLACE_ME', {
-  maxRetries: 5,
-});
-```
-
-### Timeouts
-
-Requests time out after 1 minute by default. You can configure this with a `timeout` option:
-
-<!-- prettier-ignore -->
-```ts
-// Configure the default for all requests:
-const client = new Propraven({
-  timeout: 20 * 1000, // 20 seconds (default is 1 minute)
-});
-
-// Override per-request:
-await client.v1.parcels.retrieve('REPLACE_ME', {
-  timeout: 5 * 1000,
-});
-```
-
-On timeout, an `APIConnectionTimeoutError` is thrown.
-
-Note that requests which time out will be [retried twice by default](#retries).
-
-## Advanced Usage
-
-### Accessing raw Response data (e.g., headers)
-
-The "raw" `Response` returned by `fetch()` can be accessed through the `.asResponse()` method on the `APIPromise` type that all methods return.
-This method returns as soon as the headers for a successful response are received and does not consume the response body, so you are free to write custom parsing or streaming logic.
-
-You can also use the `.withResponse()` method to get the raw `Response` along with the parsed data.
-Unlike `.asResponse()` this method consumes the body, returning once it is parsed.
-
-<!-- prettier-ignore -->
-```ts
-const client = new Propraven();
-
-const response = await client.v1.parcels.retrieve('REPLACE_ME').asResponse();
-console.log(response.headers.get('X-My-Header'));
-console.log(response.statusText); // access the underlying Response object
-
-const { data: parcel, response: raw } = await client.v1.parcels
-  .retrieve('REPLACE_ME')
-  .withResponse();
-console.log(raw.headers.get('X-My-Header'));
-console.log(parcel.parcel_id);
-```
-
-### Logging
-
-> [!IMPORTANT]
-> All log messages are intended for debugging only. The format and content of log messages
-> may change between releases.
-
-#### Log levels
-
-The log level can be configured in two ways:
-
-1. Via the `PROPRAVEN_LOG` environment variable
-2. Using the `logLevel` client option (overrides the environment variable if set)
+`client.lastRateLimit` holds `{ limit, remaining, reset }` from the most recent response that carried
+`X-RateLimit-*` headers (`reset` is Unix epoch seconds), or `null`. For one call, use `.withResponse()`:
 
 ```ts
-import Propraven from '@propraven/sdk';
-
-const client = new Propraven({
-  logLevel: 'debug', // Show all log messages
-});
+const { data, response, rateLimit, requestId } = await client.account.usage().withResponse();
+console.log(rateLimit?.remaining, response.status);
 ```
 
-Available log levels, from most to least verbose:
+## Configuration
 
-- `'debug'` - Show debug messages, info, warnings, and errors
-- `'info'` - Show info messages, warnings, and errors
-- `'warn'` - Show warnings and errors (default)
-- `'error'` - Show only errors
-- `'off'` - Disable all logging
+| Option | Default | |
+| --- | --- | --- |
+| `apiKey` | `process.env.PROPRAVEN_API_KEY` | `pz_...` key; may be omitted |
+| `baseURL` | `process.env.PROPRAVEN_BASE_URL` or `https://propraven.com` | paths include `/api/v1` |
+| `timeout` | `60000` | milliseconds |
+| `maxRetries` | `2` | |
+| `defaultHeaders` | `{}` | sent on every request |
+| `fetch` | global `fetch` | custom fetch implementation |
+| `dangerouslyAllowBrowser` | `false` | see the server-side note above |
 
-At the `'debug'` level, all HTTP requests and responses are logged, including headers and bodies.
-Some authentication-related headers are redacted, but sensitive data in request and response bodies
-may still be visible.
+Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes a header), `query`, `signal`.
 
-#### Custom logger
+## Methods
 
-By default, this library logs to `globalThis.console`. You can also provide a custom logger.
-Most logging libraries are supported, including [pino](https://www.npmjs.com/package/pino), [winston](https://www.npmjs.com/package/winston), [bunyan](https://www.npmjs.com/package/bunyan), [consola](https://www.npmjs.com/package/consola), [signale](https://www.npmjs.com/package/signale), and [@std/log](https://jsr.io/@std/log). If your logger doesn't work, please open an issue.
+<!-- generated:methods:start (scripts/generate.mjs) -->
+70 operations in 19 namespaces.
 
-When providing a custom logger, the `logLevel` option still controls which messages are emitted, messages
-below the configured level will not be sent to your logger.
+| Method | HTTP | Summary |
+| --- | --- | --- |
+| `client.account.usage(params?)` | `GET /api/v1/account/usage` | Current-period usage and quota |
+| `client.cmbs.exposure(params?)` | `GET /api/v1/cmbs/exposure` | CMBS loan exposure for a parcel or an owner |
+| `client.cohorts.export(id, params?)` | `GET /api/v1/cohorts/{id}/export` | Mail-merge export of one of your lists (account required; included for subscribers, per row otherwise) |
+| `client.cohorts.list(params?)` | `GET /api/v1/cohorts` | List your saved parcel lists (cohorts) |
+| `client.coverage.get(params?)` | `GET /api/v1/coverage` | Get coverage statistics |
+| `client.coverage.map(params?)` | `GET /api/v1/coverage/map` | County coverage map data |
+| `client.credits.balance(params)` | `GET /api/v1/storefront/credits/balance` | Read a prepaid credit balance + ledger |
+| `client.credits.topup(params)` | `GET /api/v1/storefront/credits/topup` | Fund a prepaid credit balance over x402 |
+| `client.crime.lookup(params)` | `GET /api/v1/crime/lookup` | Crime score near a point |
+| `client.deals.absentee(params?)`<br>+ `absenteeAll()` iterator | `GET /api/v1/deals/absentee` | Find absentee owners |
+| `client.deals.contractors(params?)`<br>+ `contractorsAll()` iterator | `GET /api/v1/deals/contractors` | Search contractors by permit activity |
+| `client.deals.entities(params?)`<br>+ `entitiesAll()` iterator | `GET /api/v1/deals/entities` | Find entity-owned parcels (LLC, Corp, Trust, LP) |
+| `client.deals.flips(params?)`<br>+ `flipsAll()` iterator | `GET /api/v1/deals/flips` | Find property flips |
+| `client.deals.highLandRatio(params?)`<br>+ `highLandRatioAll()` iterator | `GET /api/v1/deals/high-land-ratio` | Find parcels with high land-to-improvement ratio |
+| `client.deals.lenders(params?)`<br>+ `lendersAll()` iterator | `GET /api/v1/deals/lenders` | Search lender profiles |
+| `client.deals.longHold(params?)`<br>+ `longHoldAll()` iterator | `GET /api/v1/deals/long-hold` | Find long-held parcels (10+ years) |
+| `client.deals.market(params?)`<br>+ `marketAll()` iterator | `GET /api/v1/deals/market` | County-quarter transaction summary or affordability index |
+| `client.deals.portfolioOwners(params?)`<br>+ `portfolioOwnersAll()` iterator | `GET /api/v1/deals/portfolio-owners` | Find portfolio investors (owners of 2+ properties) |
+| `client.freshness.datasets(params?)` | `GET /api/v1/freshness/datasets` | Per-dataset availability and freshness |
+| `client.freshness.get(params?)` | `GET /api/v1/freshness` | How fresh the served parcel snapshot is |
+| `client.leads.find(params)` | `GET /api/v1/leads/find` | Lead feed (paid, priced per lead) — with a FREE preview |
+| `client.lookup.batch(params)` | `POST /api/v1/lookup/batch` | Resolve up to 500 parcel queries in one call |
+| `client.lookup.get(params)` | `GET /api/v1/lookup` | Exact parcel lookup (UUID or APN) |
+| `client.market.counties(params?)`<br>+ `countiesAll()` iterator | `GET /api/v1/market/counties` | Get county market statistics |
+| `client.market.county(fips, params?)` | `GET /api/v1/market/counties/{fips}` | Detailed view for a single county |
+| `client.market.flips(params?)`<br>+ `flipsAll()` iterator | `GET /api/v1/market/flips` | Flip-activity summary grouped by county |
+| `client.market.snapshot(params?)` | `GET /api/v1/market/snapshot` | Market snapshot for a geography |
+| `client.market.trends(params?)` | `GET /api/v1/market/trends` | Get market trends |
+| `client.owners.card(params?)` | `GET /api/v1/owners/card` | Owner card -- the owner of record and their mailing contact (account required) |
+| `client.owners.get(name, params?)` | `GET /api/v1/owners/{name}` | Get owner profile |
+| `client.owners.portfolio(name, params?)` | `GET /api/v1/owners/{name}/portfolio` | Get owner portfolio summary |
+| `client.owners.properties(name, params?)`<br>+ `propertiesAll()` iterator | `GET /api/v1/owners/{name}/properties` | Get owner's properties |
+| `client.owners.report(name, params?)` | `GET /api/v1/owners/{name}/report` | Owner intelligence report (paid, priced per resolution; account required) — with a free preview |
+| `client.owners.search(params)` | `GET /api/v1/owners/search` | Search property owners |
+| `client.owners.transactions(name, params?)` | `GET /api/v1/owners/{name}/transactions` | Recorded deed transactions for an owner |
+| `client.parcels.assessmentHistory(id, params?)` | `GET /api/v1/parcels/{id}/assessment-history` | Get recorded annual assessment history |
+| `client.parcels.batch(params)` | `POST /api/v1/parcels/batch` | Fetch up to 100 parcels by (state, county, parcel) tuple |
+| `client.parcels.compPack(id, params?)` | `GET /api/v1/parcels/{id}/comp-pack` | Comp pack (paid, priced per pack) — with a FREE preview |
+| `client.parcels.comps(id, params?)` | `GET /api/v1/parcels/{id}/comps` | Comparable sales for a parcel |
+| `client.parcels.deeds(id, params?)` | `GET /api/v1/parcels/{id}/deeds` | Get parcel deed history |
+| `client.parcels.geojson(params)` | `GET /api/v1/parcels/geojson` | Parcel polygons as GeoJSON for a bounding box |
+| `client.parcels.get(id, params?)` | `GET /api/v1/parcels/{id}` | Get parcel by ID |
+| `client.parcels.occupants(id, params?)` | `GET /api/v1/parcels/{id}/occupants` | Business occupants of a parcel |
+| `client.parcels.owner(id, params?)` | `GET /api/v1/parcels/{id}/owner` | Get parcel owner details and portfolio |
+| `client.parcels.permits(id, params?)` | `GET /api/v1/parcels/{id}/permits` | Get parcel permits |
+| `client.parcels.pois(params)` | `GET /api/v1/parcels/poi` | Business parcels in a small bounding box |
+| `client.parcels.report(id, params?)` | `GET /api/v1/parcels/{id}/report` | Parcel dossier (paid, provenance-first) |
+| `client.parcels.risks(id, params?)` | `GET /api/v1/parcels/{id}/risks` | Get parcel risk assessment |
+| `client.parcels.riskScore(id, params?)` | `GET /api/v1/parcels/{id}/risk-score` | Risk score (paid, priced per assessment) — with a FREE preview |
+| `client.parcels.trafficHistory(id, params)` | `GET /api/v1/parcels/{id}/traffic-history` | Nearest traffic station + AADT history |
+| `client.parcels.violations(id, params?)` | `GET /api/v1/parcels/{id}/violations` | Code violations on a parcel |
+| `client.search.autocomplete(params)` | `GET /api/v1/search/autocomplete` | Address / place / parcel autocomplete |
+| `client.search.export(params?)` | `GET /api/v1/search/export` | Export search results as CSV |
+| `client.search.full(params)`<br>+ `fullAll()` iterator | `GET /api/v1/search/full` | Full paginated text + attribute search |
+| `client.search.parcels(params?)`<br>+ `parcelsAll()` iterator | `POST /api/v1/search` | Search parcels |
+| `client.storefront.availability(params?)` | `GET /api/v1/storefront/availability` | Machine Storefront -- try-before-buy (jurisdiction coverage or per-parcel quote) |
+| `client.storefront.catalog(params?)` | `GET /api/v1/storefront/catalog` | Machine Storefront — sealed field catalog |
+| `client.traffic.stations(params)` | `GET /api/v1/traffic/stations` | Traffic count stations in a bounding box |
+| `client.verify.batch(params)` | `POST /api/v1/verify` | Verify facts (batch, paid per lookup) - FREE preview |
+| `client.verify.get(params)` | `GET /api/v1/verify` | Verify facts for one parcel |
+| `client.watch.create(params)` | `POST /api/v1/watch` | Create a watch (free) |
+| `client.watch.delete(id, params)` | `DELETE /api/v1/watch/{id}` | Delete a watch |
+| `client.watch.list(params)` | `GET /api/v1/watch` | List your watches |
+| `client.watch.poll(id, params)` | `GET /api/v1/watch/{id}` | Poll a watch for new changes (priced per delta) |
+| `client.webhooks.create(params)` | `POST /api/v1/webhooks` | Create a webhook endpoint |
+| `client.webhooks.delete(id, params?)` | `DELETE /api/v1/webhooks/{id}` | Soft-disable a webhook endpoint |
+| `client.webhooks.deliveries(id, params?)` | `GET /api/v1/webhooks/{id}/deliveries` | Recent delivery attempts for a webhook |
+| `client.webhooks.get(id, params?)` | `GET /api/v1/webhooks/{id}` | Get a single webhook endpoint |
+| `client.webhooks.list(params?)` | `GET /api/v1/webhooks` | List webhook endpoints |
+| `client.webhooks.retryDelivery(id, deliveryId, params?)` | `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/retry` | Re-queue a failed webhook delivery |
+<!-- generated:methods:end -->
 
-```ts
-import Propraven from '@propraven/sdk';
-import pino from 'pino';
+## Regenerating from the spec
 
-const logger = pino();
+The typed layer (`src/generated/`) is generated from `openapi.json` by `scripts/generate.mjs`; the core
+(`src/core/`, `src/webhooks.ts`, `src/client.ts`) is hand-written.
 
-const client = new Propraven({
-  logger: logger.child({ name: 'Propraven' }),
-  logLevel: 'debug', // Send all messages to pino, allowing it to filter
-});
+```sh
+npm run spec:update -- /path/to/openapi.json   # or a URL; default https://propraven.com/openapi.json
+npm run generate
+npm run typecheck && npm test
 ```
 
-### Making custom/undocumented requests
-
-This library is typed for convenient access to the documented API. If you need to access undocumented
-endpoints, params, or response properties, the library can still be used.
-
-#### Undocumented endpoints
-
-To make requests to undocumented endpoints, you can use `client.get`, `client.post`, and other HTTP verbs.
-Options on the client, such as retries, will be respected when making these requests.
-
-```ts
-await client.post('/some/path', {
-  body: { some_prop: 'foo' },
-  query: { some_query_arg: 'bar' },
-});
-```
-
-#### Undocumented request params
-
-To make requests using undocumented parameters, you may use `// @ts-expect-error` on the undocumented
-parameter. This library doesn't validate at runtime that the request matches the type, so any extra values you
-send will be sent as-is.
-
-```ts
-client.v1.parcels.retrieve({
-  // ...
-  // @ts-expect-error baz is not yet public
-  baz: 'undocumented option',
-});
-```
-
-For requests with the `GET` verb, any extra params will be in the query, all other requests will send the
-extra param in the body.
-
-If you want to explicitly send an extra argument, you can do so with the `query`, `body`, and `headers` request
-options.
-
-#### Undocumented response properties
-
-To access undocumented response properties, you may access the response object with `// @ts-expect-error` on
-the response object, or cast the response object to the requisite type. Like the request params, we do not
-validate or strip extra properties from the response from the API.
-
-### Customizing the fetch client
-
-By default, this library expects a global `fetch` function is defined.
-
-If you want to use a different `fetch` function, you can either polyfill the global:
-
-```ts
-import fetch from 'my-fetch';
-
-globalThis.fetch = fetch;
-```
-
-Or pass it to the client:
-
-```ts
-import Propraven from '@propraven/sdk';
-import fetch from 'my-fetch';
-
-const client = new Propraven({ fetch });
-```
-
-### Fetch options
-
-If you want to set custom `fetch` options without overriding the `fetch` function, you can provide a `fetchOptions` object when instantiating the client or making a request. (Request-specific options override client options.)
-
-```ts
-import Propraven from '@propraven/sdk';
-
-const client = new Propraven({
-  fetchOptions: {
-    // `RequestInit` options
-  },
-});
-```
-
-#### Configuring proxies
-
-To modify proxy behavior, you can provide custom `fetchOptions` that add runtime-specific proxy
-options to requests:
-
-<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/node.svg" align="top" width="18" height="21"> **Node** <sup>[[docs](https://github.com/nodejs/undici/blob/main/docs/docs/api/ProxyAgent.md#example---proxyagent-with-fetch)]</sup>
-
-```ts
-import Propraven from '@propraven/sdk';
-import * as undici from 'undici';
-
-const proxyAgent = new undici.ProxyAgent('http://localhost:8888');
-const client = new Propraven({
-  fetchOptions: {
-    dispatcher: proxyAgent,
-  },
-});
-```
-
-<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/bun.svg" align="top" width="18" height="21"> **Bun** <sup>[[docs](https://bun.sh/guides/http/proxy)]</sup>
-
-```ts
-import Propraven from '@propraven/sdk';
-
-const client = new Propraven({
-  fetchOptions: {
-    proxy: 'http://localhost:8888',
-  },
-});
-```
-
-<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/deno.svg" align="top" width="18" height="21"> **Deno** <sup>[[docs](https://docs.deno.com/api/deno/~/Deno.createHttpClient)]</sup>
-
-```ts
-import Propraven from 'npm:@propraven/sdk';
-
-const httpClient = Deno.createHttpClient({ proxy: { url: 'http://localhost:8888' } });
-const client = new Propraven({
-  fetchOptions: {
-    client: httpClient,
-  },
-});
-```
-
-## Frequently Asked Questions
-
-## Semantic versioning
-
-This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
-
-1. Changes that only affect static types, without breaking runtime behavior.
-2. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
-3. Changes that we do not expect to impact the vast majority of users in practice.
-
-We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
-
-We are keen for your feedback; please open an [issue](https://www.github.com/jdw2111/propraven-typescript/issues) with questions, bugs, or suggestions.
+`.github/workflows/regenerate.yml` does this daily and opens a `spec-sync` PR when the live spec changes.
 
 ## Requirements
 
-TypeScript >= 4.9 is supported.
+Node.js 18 or later (or any runtime with a WHATWG `fetch`: Deno, Bun, Cloudflare Workers, Vercel Edge).
+TypeScript users need the DOM or `@types/node` typings for `fetch`/`Response`.
 
-The following runtimes are supported:
+## License
 
-- Web browsers (Up-to-date Chrome, Firefox, Safari, Edge, and more)
-- Node.js 20 LTS or later ([non-EOL](https://endoflife.date/nodejs)) versions.
-- Deno v1.28.0 or higher.
-- Bun 1.0 or later.
-- Cloudflare Workers.
-- Vercel Edge Runtime.
-- Jest 28 or greater with the `"node"` environment (`"jsdom"` is not supported at this time).
-- Nitro v2.6 or greater.
-
-Note that React Native is not supported at this time.
-
-If you are interested in other runtime environments, please open or upvote an issue on GitHub.
-
-## Contributing
-
-See [the contributing documentation](./CONTRIBUTING.md).
+Apache-2.0. API data is licensed separately under the [PropRaven terms](https://propraven.com/terms#data-license).

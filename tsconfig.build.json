@@ -1,18 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["dist/src"],
-  "exclude": [],
+  "include": ["src"],
   "compilerOptions": {
-    "rootDir": "./dist/src",
-    "paths": {
-      "@propraven/sdk/*": ["./dist/src/*"],
-      "@propraven/sdk": ["./dist/src/index.ts"]
-    },
     "noEmit": false,
     "declaration": true,
-    "declarationMap": true,
-    "outDir": "dist",
-    "pretty": true,
-    "sourceMap": true
+    "declarationMap": false,
+    "sourceMap": false,
+    "removeComments": false,
+    "outDir": "dist/esm"
   }
 }
