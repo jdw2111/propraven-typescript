@@ -47,6 +47,13 @@
     },
     "./package.json": "./package.json"
   },
+  "typesVersions": {
+    "*": {
+      "webhooks": [
+        "./dist/cjs/webhooks.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist",
     "README.md",
@@ -63,6 +70,7 @@
   "scripts": {
     "generate": "node scripts/generate.mjs",
     "generate:check": "node scripts/generate.mjs --check",
+    "spec:update": "node scripts/update-spec.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "build": "node scripts/build.mjs",
