@@ -1,92 +1,49 @@
-// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+// Hand-written. A Promise for the parsed body that can also hand out the raw Response.
 
-import { type Propraven } from '../client';
-
-import { type PromiseOrValue } from '../internal/types';
-import { APIResponseProps, defaultParseResponse } from '../internal/parse';
+import type { WithResponse } from './types.js';
 
 /**
- * A subclass of `Promise` providing additional helper methods
- * for interacting with the SDK.
+ * Returned by every generated method. `await` it for the parsed body, or call
+ * `.withResponse()` for `{ data, response, rateLimit, requestId }`.
+ *
+ * The request starts immediately; `then`/`catch`/`finally` are delegated to the underlying
+ * request so a rejection is reported exactly once, to whoever consumes it.
  */
 export class APIPromise<T> extends Promise<T> {
-  private parsedPromise: Promise<T> | undefined;
-  #client: Propraven;
+  private readonly _raw: Promise<WithResponse<T>>;
+  private _data: Promise<T> | undefined;
 
-  constructor(
-    client: Propraven,
-    private responsePromise: Promise<APIResponseProps>,
-    private parseResponse: (
-      client: Propraven,
-      props: APIResponseProps,
-    ) => PromiseOrValue<T> = defaultParseResponse,
-  ) {
-    super((resolve) => {
-      // this is maybe a bit weird but this has to be a no-op to not implicitly
-      // parse the response body; instead .then, .catch, .finally are overridden
-      // to parse the response
-      resolve(null as any);
-    });
-    this.#client = client;
+  constructor(raw: Promise<WithResponse<T>>) {
+    super((resolve) => resolve(null as T));
+    this._raw = raw;
   }
 
-  _thenUnwrap<U>(transform: (data: T, props: APIResponseProps) => U): APIPromise<U> {
-    return new APIPromise(this.#client, this.responsePromise, async (client, props) =>
-      transform(await this.parseResponse(client, props), props),
-    );
+  static override get [Symbol.species](): PromiseConstructor {
+    return Promise;
   }
 
-  /**
-   * Gets the raw `Response` instance instead of parsing the response
-   * data.
-   *
-   * If you want to parse the response body but still get the `Response`
-   * instance, you can use {@link withResponse()}.
-   *
-   * 👋 Getting the wrong TypeScript type for `Response`?
-   * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
-   * to your `tsconfig.json`.
-   */
-  asResponse(): Promise<Response> {
-    return this.responsePromise.then((p) => p.response);
+  /** Resolve to the parsed body together with the raw `Response` and rate-limit info. */
+  withResponse(): Promise<WithResponse<T>> {
+    return this._raw;
   }
 
-  /**
-   * Gets the parsed response data and the raw `Response` instance.
-   *
-   * If you just want to get the raw `Response` instance without parsing it,
-   * you can use {@link asResponse()}.
-   *
-   * 👋 Getting the wrong TypeScript type for `Response`?
-   * Try setting `"moduleResolution": "NodeNext"` or add `"lib": ["DOM"]`
-   * to your `tsconfig.json`.
-   */
-  async withResponse(): Promise<{ data: T; response: Response }> {
-    const [data, response] = await Promise.all([this.parse(), this.asResponse()]);
-    return { data, response };
+  private parsed(): Promise<T> {
+    if (!this._data) this._data = this._raw.then((r) => r.data);
+    return this._data;
   }
 
-  private parse(): Promise<T> {
-    if (!this.parsedPromise) {
-      this.parsedPromise = this.responsePromise.then((data) => this.parseResponse(this.#client, data));
-    }
-    return this.parsedPromise;
+  override then<R1 = T, R2 = never>(
+    onfulfilled?: ((value: T) => R1 | PromiseLike<R1>) | null,
+    onrejected?: ((reason: unknown) => R2 | PromiseLike<R2>) | null,
+  ): Promise<R1 | R2> {
+    return this.parsed().then(onfulfilled, onrejected);
   }
 
-  override then<TResult1 = T, TResult2 = never>(
-    onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
-    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null,
-  ): Promise<TResult1 | TResult2> {
-    return this.parse().then(onfulfilled, onrejected);
+  override catch<R = never>(onrejected?: ((reason: unknown) => R | PromiseLike<R>) | null): Promise<T | R> {
+    return this.parsed().catch(onrejected);
   }
 
-  override catch<TResult = never>(
-    onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null,
-  ): Promise<T | TResult> {
-    return this.parse().catch(onrejected);
-  }
-
-  override finally(onfinally?: (() => void) | undefined | null): Promise<T> {
-    return this.parse().finally(onfinally);
+  override finally(onfinally?: (() => void) | null): Promise<T> {
+    return this.parsed().finally(onfinally);
   }
 }

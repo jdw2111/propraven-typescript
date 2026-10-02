@@ -1,22 +1,64 @@
-// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+// Hand-written. Public entry point of @propraven/sdk.
 
-export { Propraven as default } from './client';
+import { PropRaven } from './client.js';
 
-export { type Uploadable, toFile } from './core/uploads';
-export { APIPromise } from './core/api-promise';
-export { Propraven, type ClientOptions } from './client';
+export { PropRaven };
+export default PropRaven;
+
+/**
+ * @deprecated Renamed to `PropRaven` in 0.3.0. This alias will be removed in a future release.
+ */
+export const Propraven = PropRaven;
+/** @deprecated Renamed to `PropRaven` in 0.3.0. */
+export type Propraven = PropRaven;
+
 export {
-  PropravenError,
-  APIError,
   APIConnectionError,
-  APIConnectionTimeoutError,
+  APIError,
+  APITimeoutError,
   APIUserAbortError,
-  NotFoundError,
-  ConflictError,
-  RateLimitError,
-  BadRequestError,
   AuthenticationError,
+  BadRequestError,
+  ConflictError,
+  GatewayTimeoutError,
   InternalServerError,
+  MethodNotAllowedError,
+  NotFoundError,
+  PayloadTooLargeError,
+  PaymentRequiredError,
   PermissionDeniedError,
+  PropRavenError,
+  RateLimitError,
+  ServiceUnavailableError,
   UnprocessableEntityError,
-} from './core/error';
+  type ProblemFieldError,
+} from './core/errors.js';
+export { APIPromise } from './core/api-promise.js';
+export {
+  PageIterable,
+  computeRetryDelay,
+  DEFAULT_BASE_URL,
+  DEFAULT_MAX_RETRIES,
+  DEFAULT_TIMEOUT_MS,
+  type ClientOptions,
+  type Fetch,
+} from './core/client.js';
+export type {
+  OperationDescriptor,
+  PageItem,
+  PaginationOptions,
+  RateLimitInfo,
+  RequestOptions,
+  WithResponse,
+} from './core/types.js';
+export {
+  verifyWebhook,
+  computeWebhookSignature,
+  WebhookVerificationError,
+  WEBHOOK_SIGNATURE_HEADER,
+  type VerifyWebhookParams,
+} from './webhooks.js';
+export { VERSION } from './version.js';
+export { operations } from './generated/operations.js';
+export * from './generated/resources.js';
+export * from './generated/types.js';
