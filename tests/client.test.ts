@@ -110,7 +110,7 @@ describe('client construction', () => {
     const { client } = makeClient([{ json: { a: 1 } }]);
     const p = client.parcels.get('1');
     expect(p).toBeInstanceOf(Promise);
-    expect(await p.then((d) => (d as { a: number }).a)).toBe(1);
+    expect(await p.then((d) => (d as unknown as { a: number }).a)).toBe(1);
   });
 
   it('honours a per-request timeout with APITimeoutError', async () => {
