@@ -61,6 +61,16 @@ Responses are typed: `ParcelsGetResponse`, `DealsAbsenteeResponse`, ... (every c
 e.g. `Parcel`, `Owner`, `Permit`). Numbers are JSON numbers; identifiers (`parcel_id`, `apn`, `county_fips`,
 `state_fips`, `zip`) are strings. CSV endpoints (`search.export`) return a `string`.
 
+## Examples
+
+[Four runnable examples](examples/README.md) cover address and bounding-box search, one parcel, coverage by state, and free storefront catalog/availability. They replay schema-derived JSON in memory by default; no API key or network is needed.
+
+```sh
+npm run build && npm run examples:mock
+```
+
+See the examples guide for individual commands and explicit `--live` mode. Recorded owner fields are null, and examples never call purchase or payment endpoints.
+
 ## Authentication
 
 Pass `apiKey`, or set `PROPRAVEN_API_KEY`. The key is sent as `Authorization: Bearer <key>`.
