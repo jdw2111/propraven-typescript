@@ -1,0 +1,504 @@
+{
+  "provenance": {
+    "repository": "jdw2111/propzilla",
+    "commit": "93a4c8048888f8049cdd65894f610e2247575021",
+    "path": "public/openapi.json",
+    "sha256": "b691ee24f34911baa738d86185a8d1f7680cf2d7fd8474c491106a7b4a18e9ab",
+    "method": "Offline schema-derived illustrations, not captured HTTP responses. Property examples retained except owner/contact fields set to null. Required fields without examples use explicit synthetic constants, zero/false, empty arrays, or nullable null. Synthetic row identifiers and page counts make the examples traversable. Schema example locations are illustrative and not a verified parcel geography."
+  },
+  "records": [
+    {
+      "name": "address",
+      "method": "GET",
+      "path": "/api/v1/search/full",
+      "query": {
+        "q": "123 Main St",
+        "field": "address",
+        "state": "NC",
+        "limit": "5"
+      },
+      "body": null,
+      "schema_pointer": "/paths/~1api~1v1~1search~1full/get/responses/200/content/application~1json/schema",
+      "response": {
+        "results": [
+          {
+            "parcel_id": "00000000-0000-4000-8000-000000000001",
+            "apn": null,
+            "county_fips": "119",
+            "state_fips": "37",
+            "site_address": "123 Main St",
+            "city": "Raleigh",
+            "zip5": "27601",
+            "owner_name": null,
+            "total_value": null,
+            "latitude": null,
+            "longitude": null
+          }
+        ],
+        "total": 1,
+        "totalCapped": false,
+        "page": 1,
+        "pages": 1,
+        "hasMore": false,
+        "nextCursor": null
+      },
+      "schema_sha256": "5a32df1c2171091b722c922d65fd4a04ef76fb476cd542dac1d066e2e7338bc7"
+    },
+    {
+      "name": "bounds",
+      "method": "POST",
+      "path": "/api/v1/search",
+      "query": {},
+      "body": {
+        "bounds": {
+          "north": 35.215,
+          "south": 35.205,
+          "east": -80.855,
+          "west": -80.865
+        },
+        "filters": {
+          "valueRange": {
+            "min": 100000
+          }
+        },
+        "limit": 50
+      },
+      "schema_pointer": "/paths/~1api~1v1~1search/post/responses/200/content/application~1json/schema",
+      "response": {
+        "data": [
+          {
+            "parcel_id": "00000000-0000-4000-8000-000000000001",
+            "state_fips": "37",
+            "county_fips": "119",
+            "address": "123 Main St",
+            "city": null,
+            "state": null,
+            "owner_name": null,
+            "total_assessed_value": null,
+            "zoning": null,
+            "zoning_code_raw": null,
+            "year_built": null,
+            "lot_size_acres": null,
+            "ownership_type": null,
+            "land_use_desc": null,
+            "latitude": null,
+            "longitude": null,
+            "direct_vpd": null,
+            "nearby_vpd": null,
+            "vpd_visibility_score": null,
+            "crime_score": null,
+            "crime_tier": null,
+            "crime_trend": null,
+            "_guards": []
+          }
+        ],
+        "total": 1,
+        "total_is_estimate": false,
+        "total_is_lower_bound": false,
+        "has_more": false,
+        "limit": 50,
+        "offset": 0,
+        "sort_applied": false,
+        "withhold_gate": {
+          "applied": false,
+          "suppressed": [],
+          "reason": "EXAMPLE_ONLY",
+          "reasons": {
+            "direct_vpd": "EXAMPLE_ONLY",
+            "nearby_vpd": "EXAMPLE_ONLY",
+            "vpd_visibility_score": "EXAMPLE_ONLY"
+          },
+          "withheld_on": "EXAMPLE_ONLY",
+          "note": "EXAMPLE_ONLY"
+        }
+      },
+      "schema_sha256": "7020150f5e7ca8dfa139236cd65c927297a2b2ee19fed4b492b713d567e8f116"
+    },
+    {
+      "name": "parcel",
+      "method": "GET",
+      "path": "/api/v1/parcels/37:119:12104406",
+      "query": {},
+      "body": null,
+      "schema_pointer": "/paths/~1api~1v1~1parcels~1{id}/get/responses/200/content/application~1json/schema",
+      "response": {
+        "id": "EXAMPLE_ONLY",
+        "county_fips": "119",
+        "state_fips": "37",
+        "parcel_id": "12104406",
+        "address": "123 Main St",
+        "normalized_address": null,
+        "city": "Raleigh",
+        "state": null,
+        "zip": "27601",
+        "zip5": null,
+        "zip_plus4": null,
+        "latitude": 35.7796,
+        "longitude": -78.6382,
+        "land_use_code": null,
+        "land_use_desc": null,
+        "total_assessed_value": null,
+        "land_assessed_value": null,
+        "improvement_assessed_value": null,
+        "last_sale_price": 295000,
+        "last_sale_date": "2021-06-15",
+        "market_value": 310000,
+        "avm_value": null,
+        "avm_confidence": null,
+        "avm_method": null,
+        "tax_amount": null,
+        "tax_year": null,
+        "deal_score": 72,
+        "price_per_sqft": null,
+        "comp_sale_price": null,
+        "comp_sale_date": null,
+        "comp_similarity_score": null,
+        "estimated_monthly_rent": null,
+        "estimated_annual_rent": null,
+        "rent_yield_pct": null,
+        "rental_confidence": null,
+        "gross_rent_multiplier": null,
+        "land_improvement_ratio": null,
+        "improvement_to_land_ratio": null,
+        "is_redevelopment_candidate": null,
+        "building_sqft": null,
+        "year_built": 1998,
+        "lot_size_acres": null,
+        "lot_size_sqft": null,
+        "bedrooms": null,
+        "bathrooms": null,
+        "stories": null,
+        "units": null,
+        "unit_count": null,
+        "construction_type": null,
+        "owner_name": null,
+        "owner_address": null,
+        "owner_city": null,
+        "owner_state": null,
+        "owner_zip": null,
+        "ownership_type": null,
+        "owner_entity_type": null,
+        "entity_type": null,
+        "is_entity_owned": null,
+        "is_absentee": null,
+        "is_pe_aggregator": null,
+        "owner_occupied_flag": null,
+        "data_quality_score": null,
+        "flood_zone": null,
+        "is_sfha": null,
+        "is_opportunity_zone": null,
+        "is_justice40": null,
+        "is_flip": null,
+        "deed_count": null,
+        "permit_count": null,
+        "permit_count_12mo": null,
+        "zoning": "R-6",
+        "county_name": "Wake",
+        "property_type": null,
+        "_guards": [],
+        "is_flip_basis": "EXAMPLE_ONLY",
+        "land_improvement_ratio_stored": null,
+        "land_improvement_ratio_basis": "EXAMPLE_ONLY",
+        "improvement_to_land_ratio_basis": "EXAMPLE_ONLY",
+        "is_absentee_basis": "EXAMPLE_ONLY",
+        "owner_state_norm": null,
+        "is_out_of_state": null,
+        "identity_gate": {
+          "applied": null,
+          "suppressed": [],
+          "reason": null,
+          "join_key_basis": "EXAMPLE_ONLY",
+          "twins_in_other_counties": null,
+          "coords_basis": "EXAMPLE_ONLY",
+          "unmeasured": [],
+          "served_under_doubt": [],
+          "note": null
+        },
+        "site_gate": {
+          "applied": null,
+          "suppressed": [],
+          "reason": null,
+          "labelled": [],
+          "mailing_basis": "EXAMPLE_ONLY",
+          "note": null
+        },
+        "derived_gate": {
+          "applied": null,
+          "suppressed": [],
+          "recomputed": [],
+          "unevaluated": [],
+          "reason": null,
+          "note": null
+        },
+        "rent_gate": {
+          "applied": null,
+          "suppressed": [],
+          "reason": null,
+          "rental_confidence": null,
+          "note": null
+        },
+        "county_name_basis": "EXAMPLE_ONLY",
+        "avm_method_family": null,
+        "avm_method_basis": "EXAMPLE_ONLY"
+      },
+      "schema_sha256": "515de3e1abe60ada1d3771a854635bf85b957839c5a7267fad971cc136383b99"
+    },
+    {
+      "name": "coverage",
+      "method": "GET",
+      "path": "/api/v1/coverage",
+      "query": {
+        "state": "37"
+      },
+      "body": null,
+      "schema_pointer": "/paths/~1api~1v1~1coverage/get/responses/200/content/application~1json/schema",
+      "response": {
+        "data": [
+          {
+            "state_fips": "37",
+            "county_fips": "37183",
+            "county_name": "Wake",
+            "parcel_count": 450000,
+            "with_address": null,
+            "with_geocode": null,
+            "with_owner": null,
+            "with_value": null,
+            "last_updated": null,
+            "with_geometry": null,
+            "state_name": "North Carolina",
+            "geocoded_pct": 92.5,
+            "owner_pct": 88.3,
+            "value_pct": 85.1
+          }
+        ],
+        "total_parcels": 180000000,
+        "states_covered": 50
+      },
+      "schema_sha256": "117e94070b1428a5b97b1649faf75ef135b9164a4116c8630b98b31ea0e11b0a"
+    },
+    {
+      "name": "catalog",
+      "method": "GET",
+      "path": "/api/v1/storefront/catalog",
+      "query": {
+        "state": "NC",
+        "fields": "none"
+      },
+      "body": null,
+      "schema_pointer": "/paths/~1api~1v1~1storefront~1catalog/get/responses/200/content/application~1json/schema",
+      "response": {
+        "contract_version": 1,
+        "catalog_version": "EXAMPLE_ONLY",
+        "generated_at": "2000-01-01T00:00:00Z",
+        "seal": {
+          "algorithm": "EXAMPLE_ONLY",
+          "value": "EXAMPLE_ONLY",
+          "covers": "EXAMPLE_ONLY"
+        },
+        "disclosures": {
+          "annotation_version": "EXAMPLE_ONLY",
+          "seal_scope": "EXAMPLE_ONLY",
+          "withheld_fields": [],
+          "annotation_basis": "EXAMPLE_ONLY",
+          "reference_catalog": {
+            "version": "EXAMPLE_ONLY",
+            "seal": "EXAMPLE_ONLY"
+          },
+          "reference_catalog_matches": false,
+          "catalog_published_at": "EXAMPLE_ONLY",
+          "catalog_generated_at": "EXAMPLE_ONLY",
+          "serving_epoch_match": "EXAMPLE_ONLY",
+          "current_source_vintage": "EXAMPLE_ONLY",
+          "freshness_scope": "EXAMPLE_ONLY",
+          "coverage_scope": "EXAMPLE_ONLY",
+          "pricing_scope": "EXAMPLE_ONLY",
+          "applicability": "EXAMPLE_ONLY",
+          "field_advisories": []
+        },
+        "measured_from": {
+          "relation": "EXAMPLE_ONLY",
+          "schema": "EXAMPLE_ONLY",
+          "parent": "EXAMPLE_ONLY",
+          "parcels": 0,
+          "states": 0,
+          "method": "EXAMPLE_ONLY",
+          "weight_source": "EXAMPLE_ONLY",
+          "weights_reconcile_to_snapshot": false,
+          "manifest": "EXAMPLE_ONLY",
+          "snapshot_watermark": "EXAMPLE_ONLY",
+          "snapshot_swapped_at": "EXAMPLE_ONLY",
+          "parity_status": "EXAMPLE_ONLY",
+          "partition_analyze_min": "EXAMPLE_ONLY",
+          "partition_analyze_max": "EXAMPLE_ONLY",
+          "geocode_coverage": 0,
+          "sampling": "EXAMPLE_ONLY",
+          "baseline": {
+            "source": "EXAMPLE_ONLY",
+            "last_analyze": "EXAMPLE_ONLY",
+            "note": "EXAMPLE_ONLY"
+          },
+          "parcel_counts_epoch": "EXAMPLE_ONLY",
+          "mapped_locations": 0,
+          "geocoded_parcels": 0,
+          "rows": 0,
+          "parcel_count_definitions": {
+            "parcels": "EXAMPLE_ONLY",
+            "mapped_locations": "EXAMPLE_ONLY",
+            "geocoded_parcels": "EXAMPLE_ONLY",
+            "rows": "EXAMPLE_ONLY"
+          },
+          "geocode_coverage_basis": "EXAMPLE_ONLY"
+        },
+        "counts": {
+          "columns": 0,
+          "sellable": 0,
+          "plumbing": 0,
+          "headline_parcel_grain_at_80": 0,
+          "red_cells": 0,
+          "epoch_regressions": 0,
+          "curation_review_required": 0,
+          "by_grain": {
+            "county": 0,
+            "parcel": 0,
+            "tract": 0,
+            "unknown": 0,
+            "zip": 0
+          },
+          "cumulative_at": {
+            "0.95": 0,
+            "0.80": 0,
+            "0.60": 0,
+            "0.30": 0
+          },
+          "withheld": 0
+        },
+        "tiers": {
+          "prime": 0,
+          "strong": 0,
+          "good": 0,
+          "partial": 0,
+          "sparse": 0,
+          "trace": 0
+        },
+        "headline": {
+          "floor": 0,
+          "parcel_grain_fields": 0,
+          "all_sellable_fields": 0,
+          "claim": "EXAMPLE_ONLY"
+        },
+        "sections": {
+          "parcel": {
+            "relation": "EXAMPLE_ONLY",
+            "rows": 0
+          },
+          "permits": {
+            "relation": "EXAMPLE_ONLY",
+            "rows": 0,
+            "national_share": 0
+          },
+          "deeds": {
+            "relation": "EXAMPLE_ONLY",
+            "rows": 0,
+            "national_share": 0
+          },
+          "comps": {
+            "relation": "EXAMPLE_ONLY",
+            "rows": 0,
+            "national_share": 0
+          },
+          "geometry": {
+            "relation": "EXAMPLE_ONLY",
+            "rows": 0,
+            "national_share": 0
+          }
+        },
+        "pricing": {
+          "dossier": {
+            "amount": "EXAMPLE_ONLY",
+            "currency": "EXAMPLE_ONLY"
+          },
+          "add_ons": [],
+          "catalog": "EXAMPLE_ONLY",
+          "availability": "EXAMPLE_ONLY",
+          "purchase_flow": "EXAMPLE_ONLY"
+        },
+        "quote": {
+          "price": {
+            "amount": "EXAMPLE_ONLY",
+            "currency": "EXAMPLE_ONLY"
+          },
+          "currency": "EXAMPLE_ONLY",
+          "add_ons": [],
+          "pay": [],
+          "purchase_flow": "EXAMPLE_ONLY"
+        },
+        "warts": [],
+        "freshness": [],
+        "advisories": [],
+        "state_index": [],
+        "state": {
+          "state_fips": "EXAMPLE_ONLY",
+          "state": "EXAMPLE_ONLY",
+          "counties": 0,
+          "parcels": 0,
+          "rollup_parcels": 0,
+          "share_of_national": 0,
+          "coverage": {
+            "address": 0,
+            "geocode": 0,
+            "owner": 0,
+            "value": 0,
+            "geometry": 0
+          },
+          "last_analyze": "EXAMPLE_ONLY",
+          "worst_gaps": []
+        },
+        "field_count": 0,
+        "fields": []
+      },
+      "schema_sha256": "7d6aaf24289afba3d5d829125823bae6180fc72360d015a01a9b3aea19b36e56"
+    },
+    {
+      "name": "availability",
+      "method": "GET",
+      "path": "/api/v1/storefront/availability",
+      "query": {
+        "state": "NC",
+        "county": "37183"
+      },
+      "body": null,
+      "schema_pointer": "/paths/~1api~1v1~1storefront~1availability/get/responses/200/content/application~1json/schema",
+      "response": {
+        "contract_version": 1,
+        "catalog_version": "EXAMPLE_ONLY",
+        "generated_at": "2000-01-01T00:00:00Z",
+        "seal": {
+          "algorithm": "EXAMPLE_ONLY",
+          "value": "EXAMPLE_ONLY",
+          "covers": "EXAMPLE_ONLY"
+        },
+        "disclosures": {
+          "annotation_version": "EXAMPLE_ONLY",
+          "seal_scope": "EXAMPLE_ONLY",
+          "withheld_fields": [],
+          "annotation_basis": "EXAMPLE_ONLY",
+          "reference_catalog": {
+            "version": "EXAMPLE_ONLY",
+            "seal": "EXAMPLE_ONLY"
+          },
+          "reference_catalog_matches": false,
+          "catalog_published_at": "EXAMPLE_ONLY",
+          "catalog_generated_at": "EXAMPLE_ONLY",
+          "serving_epoch_match": "EXAMPLE_ONLY",
+          "current_source_vintage": "EXAMPLE_ONLY",
+          "freshness_scope": "EXAMPLE_ONLY",
+          "coverage_scope": "EXAMPLE_ONLY",
+          "pricing_scope": "EXAMPLE_ONLY",
+          "applicability": "EXAMPLE_ONLY",
+          "field_advisories": []
+        }
+      },
+      "schema_sha256": "00f5f790602dce36d353b23d0223d2f5d80a9d132afa951bb6aa6938c0322de6"
+    }
+  ]
+}

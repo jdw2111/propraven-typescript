@@ -53,9 +53,10 @@ jobs:
       - name: Test
         if: steps.diff.outputs.changed == 'true'
         run: |
+          npm run build
+          npm run examples:mock
           npm run typecheck
           npm test
-          npm run build
 
       - name: Open or update the spec-sync PR
         if: steps.diff.outputs.changed == 'true'

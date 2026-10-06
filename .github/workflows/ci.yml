@@ -29,9 +29,11 @@ jobs:
       - run: npm ci
       - name: Generated code is up to date with openapi.json
         run: npm run generate:check
+      - run: npm run build
+      - name: Run all public examples offline
+        run: npm run examples:mock
       - run: npm run typecheck
       - run: npm test
-      - run: npm run build
       - run: npm run smoke:dist
       - run: npm pack --dry-run
 
