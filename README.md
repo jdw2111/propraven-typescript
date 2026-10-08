@@ -213,7 +213,7 @@ Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes 
 ## Methods
 
 <!-- generated:methods:start (scripts/generate.mjs) -->
-70 operations in 19 namespaces.
+79 operations in 21 namespaces.
 
 | Method | HTTP | Summary |
 | --- | --- | --- |
@@ -237,14 +237,22 @@ Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes 
 | `client.deals.portfolioOwners(params?)`<br>+ `portfolioOwnersAll()` iterator | `GET /api/v1/deals/portfolio-owners` | Find portfolio investors (owners of 2+ properties) |
 | `client.freshness.datasets(params?)` | `GET /api/v1/freshness/datasets` | Per-dataset availability and freshness |
 | `client.freshness.get(params?)` | `GET /api/v1/freshness` | How fresh the served parcel snapshot is |
+| `client.intelligence.createScenario(params)` | `POST /api/v1/intelligence/scenarios` | Save an explicit named residual scenario |
+| `client.intelligence.handoff(runId, params?)` | `GET /api/v1/intelligence/runs/{runId}/handoff` | Prepare an owned structured investigation handoff |
+| `client.intelligence.run(runId, params?)` | `GET /api/v1/intelligence/runs/{runId}` | Read an owned retained run and evidence |
+| `client.intelligence.signals(id, params?)` | `GET /api/v1/parcels/{id}/signals` | Get evidence-backed property signals |
 | `client.leads.find(params)` | `GET /api/v1/leads/find` | Lead feed (paid, priced per lead) — with a FREE preview |
+| `client.licensees.firms(params)` | `GET /api/v1/licensees/firms` | Search licensed firms in a place |
 | `client.lookup.batch(params)` | `POST /api/v1/lookup/batch` | Resolve up to 500 parcel queries in one call |
 | `client.lookup.get(params)` | `GET /api/v1/lookup` | Exact parcel lookup (UUID or APN) |
+| `client.market.compareZillowMarkets(params)` | `GET /api/v1/market/zillow/compare` | Compare explicit provider regions at one common period |
 | `client.market.counties(params?)`<br>+ `countiesAll()` iterator | `GET /api/v1/market/counties` | Get county market statistics |
 | `client.market.county(fips, params?)` | `GET /api/v1/market/counties/{fips}` | Detailed view for a single county |
 | `client.market.flips(params?)`<br>+ `flipsAll()` iterator | `GET /api/v1/market/flips` | Flip-activity summary grouped by county |
 | `client.market.snapshot(params?)` | `GET /api/v1/market/snapshot` | Market snapshot for a geography |
 | `client.market.trends(params?)` | `GET /api/v1/market/trends` | Get market trends |
+| `client.market.zillowContext(params)` | `GET /api/v1/market/zillow/context` | Get qualified regional Zillow context for a property |
+| `client.market.zillowTimeseries(params)` | `GET /api/v1/market/zillow/timeseries` | Get one provider region monthly series |
 | `client.owners.card(params?)` | `GET /api/v1/owners/card` | Owner card -- the owner of record and their mailing contact (account required) |
 | `client.owners.get(name, params?)` | `GET /api/v1/owners/{name}` | Get owner profile |
 | `client.owners.portfolio(name, params?)` | `GET /api/v1/owners/{name}/portfolio` | Get owner portfolio summary |
@@ -266,6 +274,7 @@ Per-request options: `timeout`, `maxRetries`, `headers` (a `null` value removes 
 | `client.parcels.report(id, params?)` | `GET /api/v1/parcels/{id}/report` | Parcel dossier (paid, provenance-first) |
 | `client.parcels.risks(id, params?)` | `GET /api/v1/parcels/{id}/risks` | Get parcel risk assessment |
 | `client.parcels.riskScore(id, params?)` | `GET /api/v1/parcels/{id}/risk-score` | Risk score (paid, priced per assessment) — with a FREE preview |
+| `client.parcels.taxStatus(id, params?)` | `GET /api/v1/parcels/{id}/tax-status` | Property-tax delinquency status of a parcel |
 | `client.parcels.trafficHistory(id, params)` | `GET /api/v1/parcels/{id}/traffic-history` | Nearest traffic station + AADT history |
 | `client.parcels.violations(id, params?)` | `GET /api/v1/parcels/{id}/violations` | Code violations on a parcel |
 | `client.search.autocomplete(params)` | `GET /api/v1/search/autocomplete` | Address / place / parcel autocomplete |

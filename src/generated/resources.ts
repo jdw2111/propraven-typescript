@@ -55,12 +55,24 @@ import type {
   FreshnessDatasetsResponse,
   FreshnessGetParams,
   FreshnessGetResponse,
+  IntelligenceCreateScenarioParams,
+  IntelligenceCreateScenarioResponse,
+  IntelligenceHandoffParams,
+  IntelligenceHandoffResponse,
+  IntelligenceRunParams,
+  IntelligenceRunResponse,
+  IntelligenceSignalsParams,
+  IntelligenceSignalsResponse,
   LeadsFindParams,
   LeadsFindResponse,
+  LicenseesFirmsParams,
+  LicenseesFirmsResponse,
   LookupBatchParams,
   LookupBatchResponse,
   LookupGetParams,
   LookupGetResponse,
+  MarketCompareZillowMarketsParams,
+  MarketCompareZillowMarketsResponse,
   MarketCountiesItem,
   MarketCountiesParams,
   MarketCountiesResponse,
@@ -73,6 +85,10 @@ import type {
   MarketSnapshotResponse,
   MarketTrendsParams,
   MarketTrendsResponse,
+  MarketZillowContextParams,
+  MarketZillowContextResponse,
+  MarketZillowTimeseriesParams,
+  MarketZillowTimeseriesResponse,
   OwnersCardParams,
   OwnersCardResponse,
   OwnersGetParams,
@@ -116,6 +132,8 @@ import type {
   ParcelsRiskScoreResponse,
   ParcelsRisksParams,
   ParcelsRisksResponse,
+  ParcelsTaxStatusParams,
+  ParcelsTaxStatusResponse,
   ParcelsTrafficHistoryParams,
   ParcelsTrafficHistoryResponse,
   ParcelsViolationsParams,
@@ -500,6 +518,53 @@ export class FreshnessResource extends APIResource {
   }
 }
 
+/** `client.intelligence` */
+export class IntelligenceResource extends APIResource {
+  /**
+   * Save an explicit named residual scenario
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. No query parameters are used by this operation; its inputs are the strict JSON body. This contract does not indicate source activation, deployment or an SDK release. Retained objects are scoped to the current account and their creator; no caller-supplied account/user grant is accepted. Current source rights are checked for every read/use, independently of archived grants. Creates an immutable base/downside/upside revision linked to an owned readable run. A parent revision must belong to the same run and creator. Formula uses fixed-dollar profit and purchase-independent carry; no live values/default costs are invented. Negative residuals remain explicit. The JSON object is strict, bounded to 16,384 bytes, and costs must contain each of the five buckets once.
+   *
+   * `POST /api/v1/intelligence/scenarios`
+   */
+  createScenario(params: IntelligenceCreateScenarioParams, options?: RequestOptions): APIPromise<IntelligenceCreateScenarioResponse> {
+    return this._client._call<IntelligenceCreateScenarioResponse>(ops.intelligence_createScenario, [], params, options);
+  }
+
+  /**
+   * Prepare an owned structured investigation handoff
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Retained objects are scoped to the current account and their creator; no caller-supplied account/user grant is accepted. Current source rights are checked for every read/use, independently of archived grants. Returns the same retained calculations, evidence and optional saved scenario, with observations separated from user assumptions. The scenario must belong to the same run/creator. Delivery is structured_only_not_sent; no agent/model is started.
+   *
+   * `GET /api/v1/intelligence/runs/{runId}/handoff`
+   */
+  handoff(runId: string, params: IntelligenceHandoffParams = {}, options?: RequestOptions): APIPromise<IntelligenceHandoffResponse> {
+    return this._client._call<IntelligenceHandoffResponse>(ops.intelligence_handoff, [runId], params, options);
+  }
+
+  /**
+   * Read an owned retained run and evidence
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Retained objects are scoped to the current account and their creator; no caller-supplied account/user grant is accepted. Current source rights are checked for every read/use, independently of archived grants. Withdrawn rights or changed source semantics may withhold a saved result; its immutable archived payload is not rewritten.
+   *
+   * `GET /api/v1/intelligence/runs/{runId}`
+   */
+  run(runId: string, params: IntelligenceRunParams = {}, options?: RequestOptions): APIPromise<IntelligenceRunResponse> {
+    return this._client._call<IntelligenceRunResponse>(ops.intelligence_run, [runId], params, options);
+  }
+
+  /**
+   * Get evidence-backed property signals
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Retained objects are scoped to the current account and their creator; no caller-supplied account/user grant is accepted. Current source rights are checked for every read/use, independently of archived grants. Assessment composition, where qualified, is not market value. Other groups remain explicitly unavailable without approved adapters. Exact values are numerator/denominator strings; historical runs exclude later-learned evidence.
+   *
+   * `GET /api/v1/parcels/{id}/signals`
+   */
+  signals(id: string, params: IntelligenceSignalsParams = {}, options?: RequestOptions): APIPromise<IntelligenceSignalsResponse> {
+    return this._client._call<IntelligenceSignalsResponse>(ops.intelligence_signals, [id], params, options);
+  }
+}
+
 /** `client.leads` */
 export class LeadsResource extends APIResource {
   /**
@@ -530,6 +595,20 @@ export class LeadsResource extends APIResource {
   }
 }
 
+/** `client.licensees` */
+export class LicenseesResource extends APIResource {
+  /**
+   * Search licensed firms in a place
+   *
+   * Firms licensed by the issuing state boards (FL DBPR and DFS, CA DRE and the Board of Accountancy, NY DOS, CT DCP, VA DPOR) in one city or zip, grouped by name and by the issuer's parent-license link, with their distinct street locations. `min_locations=3` finds firms with at least three licensed locations there. Requires an account; a person-shaped firm is people data and each response serving one is logged. 503 `licensee_layer_unavailable` until the layer is loaded.
+   *
+   * `GET /api/v1/licensees/firms`
+   */
+  firms(params: LicenseesFirmsParams, options?: RequestOptions): APIPromise<LicenseesFirmsResponse> {
+    return this._client._call<LicenseesFirmsResponse>(ops.licensees_firms, [], params, options);
+  }
+}
+
 /** `client.lookup` */
 export class LookupResource extends APIResource {
   /**
@@ -557,6 +636,17 @@ export class LookupResource extends APIResource {
 
 /** `client.market` */
 export class MarketResource extends APIResource {
+  /**
+   * Compare explicit provider regions at one common period
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Use-specific, unexpired reviewed Zillow rights are checked before parcel resolution or repository/cache access. Denied/unknown rights return explicit unavailable metric values, not substitute data. Each metric exposes actual regional geography/variant and freshness; regional values do not become parcel estimates or residual inputs. Up to five distinct region IDs use one dataset/accepted snapshot and common month. First ID is the reference. Value gaps retain a missing reason; incompatible regions are not converted to comparable parcel data. Alternatively provide parcel_id, metric and period (optional window_months) instead of dataset_key and region_ids. Property geography is resolved only by the server. County/metro/national comparisons require compatible metric definitions, units and variants, one requested month and an explicit captured acceptance cutoff. Each dataset retains its own snapshot provenance. Missing mappings, permissions and variants remain unavailable; mixed query forms are rejected.
+   *
+   * `GET /api/v1/market/zillow/compare`
+   */
+  compareZillowMarkets(params: MarketCompareZillowMarketsParams, options?: RequestOptions): APIPromise<MarketCompareZillowMarketsResponse> {
+    return this._client._call<MarketCompareZillowMarketsResponse>(ops.market_compareZillowMarkets, [], params, options);
+  }
+
   /**
    * Get county market statistics
    *
@@ -630,6 +720,28 @@ export class MarketResource extends APIResource {
    */
   trends(params: MarketTrendsParams = {}, options?: RequestOptions): APIPromise<MarketTrendsResponse> {
     return this._client._call<MarketTrendsResponse>(ops.market_trends, [], params, options);
+  }
+
+  /**
+   * Get qualified regional Zillow context for a property
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Use-specific, unexpired reviewed Zillow rights are checked before parcel resolution or repository/cache access. Denied/unknown rights return explicit unavailable metric values, not substitute data. Each metric exposes actual regional geography/variant and freshness; regional values do not become parcel estimates or residual inputs. Only the trusted served parcel supplies ZIP/county/state. Caller-supplied geography/CBSA is rejected; there is no inferred metro match. canonical_id is omitted when rights prevent parcel lookup.
+   *
+   * `GET /api/v1/market/zillow/context`
+   */
+  zillowContext(params: MarketZillowContextParams, options?: RequestOptions): APIPromise<MarketZillowContextResponse> {
+    return this._client._call<MarketZillowContextResponse>(ops.market_zillowContext, [], params, options);
+  }
+
+  /**
+   * Get one provider region monthly series
+   *
+   * Requires API-key or first-party session authentication and a current account in the default-off server cohort. Valid current membership does not require a new paid subscription. Existing API quotas still apply. Responses are private, no-store. Unknown and repeated query parameters are rejected. This contract does not indicate source activation, deployment or an SDK release. Use-specific, unexpired reviewed Zillow rights are checked before parcel resolution or repository/cache access. Denied/unknown rights return explicit unavailable metric values, not substitute data. Each metric exposes actual regional geography/variant and freshness; regional values do not become parcel estimates or residual inputs. Provider region IDs are not FIPS/CBSA codes. Explicit selection remains regional, not a property mapping. Range is ordered and limited to600 monthly periods.
+   *
+   * `GET /api/v1/market/zillow/timeseries`
+   */
+  zillowTimeseries(params: MarketZillowTimeseriesParams, options?: RequestOptions): APIPromise<MarketZillowTimeseriesResponse> {
+    return this._client._call<MarketZillowTimeseriesResponse>(ops.market_zillowTimeseries, [], params, options);
   }
 }
 
@@ -827,7 +939,7 @@ export class ParcelsResource extends APIResource {
   /**
    * Business occupants of a parcel
    *
-   * Businesses matched to the parcel (names, brands, categories, match confidence), primary occupant first. At most 100 rows; `truncated` says when more exist.
+   * Businesses matched to the parcel (names, brands, categories, match confidence), primary occupant first. At most 100 rows; `truncated` says when more exist. For an account, `licensees` adds the licensed businesses the state licensing boards place at the parcel (firms, or individuals at a publisher-labelled business address; match confidence >= 0.80; never a residential parcel).
    *
    * `GET /api/v1/parcels/{id}/occupants`
    */
@@ -911,6 +1023,17 @@ export class ParcelsResource extends APIResource {
    */
   riskScore(id: string, params: ParcelsRiskScoreParams = {}, options?: RequestOptions): APIPromise<ParcelsRiskScoreResponse> {
     return this._client._call<ParcelsRiskScoreResponse>(ops.parcels_riskScore, [id], params, options);
+  }
+
+  /**
+   * Property-tax delinquency status of a parcel
+   *
+   * Whether the parcel is on a treasurer's or tax collector's published property-tax delinquency, lien-sale or tax-sale list (pilot jurisdictions), with each record's status, amount (and what the amount is), tax years, sale, publisher, dates and the list's scope. ACCOUNT REQUIRED (people data, gated like the owner card): a caller with no account gets 401 `code: account_required` and nothing else. A response that serves records counts as one lookup against the account's monthly cap (included on paid plans) and is written to the people-data access log; at the cap the records are withheld with `people_fields.code: lookup_cap_reached` (nothing charged). Before the layer's first load `status` is `unavailable`.
+   *
+   * `GET /api/v1/parcels/{id}/tax-status`
+   */
+  taxStatus(id: string, params: ParcelsTaxStatusParams = {}, options?: RequestOptions): APIPromise<ParcelsTaxStatusResponse> {
+    return this._client._call<ParcelsTaxStatusResponse>(ops.parcels_taxStatus, [id], params, options);
   }
 
   /**

@@ -189,6 +189,8 @@ export interface CountyDetail {
     /** Average days on market. */
     avg_dom: number | null;
     refreshed_at: string | null;
+    under_review?: Array<string | null>;
+    stale_quarter?: boolean | null;
   }>;
   affordability: Array<AffordabilityRow>;
   data_provenance: {
@@ -373,6 +375,1100 @@ export interface HighLandRatioParcel {
   longitude: number | null;
 }
 
+export interface IntelligenceAssessmentObservation {
+  source: string;
+  record_id: string;
+  version: string;
+  evidence_id: string;
+  effective_at: string;
+  captured_at: string;
+  observed_at: string | null;
+  land: string | null;
+  improvement: string | null;
+  basis: "assessed" | "appraised" | "market" | "taxable";
+  vintage: string;
+  source_product: string;
+  source_version: string;
+  component_basis_verified: boolean;
+}
+
+export interface IntelligenceCalculation {
+  definition: string;
+  status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+  reasons: Array<string>;
+  metrics: { [key: string]: {
+    value: {
+      numerator: string;
+      denominator: string;
+    } | null;
+    unit: string;
+  } };
+  counts: { [key: string]: number };
+  exclusions: { [key: string]: number };
+  evidence_ids: Array<string>;
+  context: {
+    input_kind: "observed" | "user_assumptions" | "unavailable";
+    requested_scope: {
+      geography: string;
+      property_type: string;
+      currency: string;
+    } | null;
+    actual_scope: {
+      geography: string;
+      property_type: string;
+      currency: string;
+    } | null;
+    query: {
+      as_of: string;
+      knowledge_cutoff: string;
+    } | null;
+    period: {
+      kind: "window";
+      window: {
+        start: string;
+        end: string;
+      };
+    } | {
+      kind: "snapshot";
+      at: string;
+    } | {
+      kind: "comparison";
+      current: {
+        start: string;
+        end: string;
+      };
+      previous: {
+        start: string;
+        end: string;
+      };
+    } | {
+      kind: "stock_flow";
+      snapshot_at: string;
+      flow: {
+        start: string;
+        end: string;
+      };
+    } | null;
+    metric_periods: { [key: string]: {
+      kind: "window";
+      window: {
+        start: string;
+        end: string;
+      };
+    } | {
+      kind: "snapshot";
+      at: string;
+    } | {
+      kind: "comparison";
+      current: {
+        start: string;
+        end: string;
+      };
+      previous: {
+        start: string;
+        end: string;
+      };
+    } | {
+      kind: "stock_flow";
+      snapshot_at: string;
+      flow: {
+        start: string;
+        end: string;
+      };
+    } };
+    latest_observation_at: string | null;
+    source_as_of: string | null;
+    source_vintage: string | null;
+    history_complete: boolean | null;
+  };
+  [key: string]: unknown;
+}
+
+export interface IntelligenceEvidence {
+  id: IntelligenceRetainedId;
+  source_product: string;
+  source_version: string;
+  captured_at: IntelligenceInstant;
+  observed_at: string | null;
+  source_as_of: string | null;
+  source_url: string | null;
+  knowledge_basis: "source_observed_at" | "first_retained_capture";
+  effective_time_basis: "source_event_time" | "first_retained_capture_only";
+  capability: IntelligenceSourceCapability;
+  assessment: IntelligenceAssessmentObservation;
+  source_record: {
+    assessment_year: number | null;
+    tax_year: number | null;
+    vintage_year: number | null;
+    reported_total: string | null;
+    tax_amount: string | null;
+    tax_paid_amount: string | null;
+  };
+}
+
+/** Authorized retained results and optional user scenario; structured_only_not_sent. No model call, external delivery or duplicate arithmetic. */
+export interface IntelligenceHandoff {
+  version: "investigation-handoff@1";
+  canonical_id: string;
+  run_id: string;
+  query: {
+    as_of: string;
+    knowledge_cutoff: string;
+  };
+  observations: Array<{
+    evidence_id: string;
+    source_product: string;
+    source_version: string;
+    vintage: string;
+    source_as_of: string | null;
+    observed_at: string | null;
+    captured_at: string;
+    knowledge_basis: string;
+    effective_time_basis: string;
+    source_url: string | null;
+  }>;
+  computed_results: {
+    market: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    seller: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    owner: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    redevelopment: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+  };
+  user_assumptions: {
+    id: string;
+    run_id: string;
+    parent_revision_id: string | null;
+    label: "base" | "downside" | "upside";
+    created_at: string;
+    assumptions: { [key: string]: unknown };
+    result: {
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    };
+  } | null;
+  interpretations: Array<string>;
+  next_diligence: Array<string>;
+  delivery: "structured_only_not_sent";
+  [key: string]: unknown;
+}
+
+export type IntelligenceInstant = string;
+
+export type IntelligenceParcelId = string;
+
+export interface IntelligenceResidualAssumptions {
+  currency: string;
+  gross_completed_sale: string;
+  selling_costs: string;
+  costs: Array<{
+    bucket: "hard" | "soft" | "contingency" | "carry" | "other_nonland";
+    amount: string;
+    currency: string;
+  }>;
+  required_profit_dollars: string;
+  fixed_acquisition_costs: string;
+  acquisition_cost_rate: string;
+  profit_mode: "fixed_dollars";
+  carry_mode: "purchase_independent";
+  input_source: "user_input";
+}
+
+export type IntelligenceRetainedId = string;
+
+export interface IntelligenceRights {
+  version: string;
+  display: boolean;
+  derived: boolean;
+  cache: boolean;
+  retain_history: boolean;
+  export: boolean;
+  ai: boolean;
+}
+
+/** Immutable descriptive calculation run with exact rational wire values. Calculation time is not source freshness. Unknown values/dates remain null. */
+export interface IntelligenceRun {
+  id: string;
+  canonical_id: string;
+  definition_version: string;
+  query: {
+    as_of: string;
+    knowledge_cutoff: string;
+  };
+  computed_at: string;
+  evidence_ids: Array<string>;
+  groups: {
+    market: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    seller: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    owner: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+    redevelopment: Array<{
+      definition: string;
+      status: "available" | "partial" | "insufficient_data" | "unavailable" | "stale" | "error";
+      reasons: Array<string>;
+      metrics: { [key: string]: {
+        value: {
+          numerator: string;
+          denominator: string;
+        } | null;
+        unit: string;
+      } };
+      counts: { [key: string]: number };
+      exclusions: { [key: string]: number };
+      evidence_ids: Array<string>;
+      context: {
+        input_kind: "observed" | "user_assumptions" | "unavailable";
+        requested_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        actual_scope: {
+          geography: string;
+          property_type: string;
+          currency: string;
+        } | null;
+        query: {
+          as_of: string;
+          knowledge_cutoff: string;
+        } | null;
+        period: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } | null;
+        metric_periods: { [key: string]: {
+          kind: "window";
+          window: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "snapshot";
+          at: string;
+        } | {
+          kind: "comparison";
+          current: {
+            start: string;
+            end: string;
+          };
+          previous: {
+            start: string;
+            end: string;
+          };
+        } | {
+          kind: "stock_flow";
+          snapshot_at: string;
+          flow: {
+            start: string;
+            end: string;
+          };
+        } };
+        latest_observation_at: string | null;
+        source_as_of: string | null;
+        source_vintage: string | null;
+        history_complete: boolean | null;
+      };
+      [key: string]: unknown;
+    }>;
+  };
+  [key: string]: unknown;
+}
+
+export interface IntelligenceRunDetail {
+  run: IntelligenceRun;
+  evidence: Array<IntelligenceEvidence>;
+}
+
+/** All five unique cost buckets and a matching currency are required; explicitly enter zero. No inferred defaults. Only fixed-dollar profit and purchase-independent carry. */
+export interface IntelligenceScenarioInput {
+  run_id: string;
+  label: "base" | "downside" | "upside";
+  parent_revision_id?: string;
+  assumptions: {
+    currency: string;
+    gross_completed_sale: string;
+    selling_costs: string;
+    costs: Array<{
+      bucket: "hard" | "soft" | "contingency" | "carry" | "other_nonland";
+      amount: string;
+      currency: string;
+    }>;
+    required_profit_dollars: string;
+    fixed_acquisition_costs: string;
+    acquisition_cost_rate: string;
+    profit_mode: "fixed_dollars";
+    carry_mode: "purchase_independent";
+    input_source: "user_input";
+  };
+}
+
+export interface IntelligenceScenarioRevision {
+  id: IntelligenceRetainedId;
+  run_id: IntelligenceRetainedId;
+  parent_revision_id: IntelligenceRetainedId | null;
+  label: "base" | "downside" | "upside";
+  created_at: IntelligenceInstant;
+  assumptions: IntelligenceResidualAssumptions;
+  result: IntelligenceCalculation;
+}
+
+export interface IntelligenceScope {
+  geography: string;
+  property_type: string;
+  currency: string;
+}
+
+export interface IntelligenceSourceCapability {
+  id: string;
+  version: string;
+  source_product: string;
+  source_version: string;
+  scope: IntelligenceScope;
+  rights: IntelligenceRights | null;
+  additive_components: boolean;
+  complete: boolean;
+  mature_through: string | null;
+  source_as_of: string | null;
+  stale_after: string | null;
+}
+
 /** One delivered lead. Signal-specific strength fields are flattened alongside the common keys (e.g. years_held + hold_tier for long_hold; profit + profit_pct + flip_tier for flip; land_improvement_ratio for high_land_ratio/distressed; property_count + states_list for portfolio_owner). */
 export interface Lead {
   /** state_fips:county_fips3:parcel_id (the assessor APN, never a PropRaven UUID). Null on the owner-grain portfolio_owner cohort. MASKED to "37:183:..." in the free preview. */
@@ -432,6 +1528,7 @@ export interface LeadFeed {
     value_max?: number | null;
     limit?: number;
     mail_ready?: boolean;
+    tax_delinquent?: boolean;
   };
   /** Leads that will be / were delivered: min(matching rows, limit). This is the priced quantity. */
   count?: number;
@@ -445,6 +1542,7 @@ export interface LeadFeed {
   paid_via?: "x402" | "credits" | "subscription";
   /** The delivered, UNMASKED leads. */
   leads?: Array<Lead>;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** The FREE preview (preview=true). `count` and `quote` are exactly what a paid call would deliver and charge. */
@@ -460,6 +1558,7 @@ export interface LeadFeedPreview {
     value_max: number | null;
     mail_ready: boolean;
     limit: number;
+    tax_delinquent?: boolean;
   };
   /** Leads that will be / were delivered: min(matching rows, limit). This is the priced quantity. */
   count: number;
@@ -472,6 +1571,7 @@ export interface LeadFeedPreview {
   note: string;
   /** Present only when a known data gap explains an empty result (e.g. the owner-portfolio rollup's unpopulated state columns). Nothing is charged in that case. */
   coverage_note?: string;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** The owner's best mailing address on a delivered lead (account holders only). Lead pulls do not run the per-parcel permit phone lookup (`phone_status` is always not_checked); call GET /api/v1/owners/card for the full card. */
@@ -774,16 +1874,16 @@ export interface OwnerCard {
 }
 
 export interface OwnerTransaction {
-  document_number?: string;
-  recording_date?: string | null;
-  sale_date?: string | null;
+  document_number: string | null;
+  recording_date: string | null;
+  sale_date: string | null;
   /** Recorded document type (Warranty Deed, Quit Claim, etc.). */
-  document_type?: string | null;
+  document_type: string | null;
   /** USD. Null when state is non-disclosure. */
-  sale_price?: number | null;
-  grantor_name?: string | null;
-  grantee_name?: string | null;
-  property_address?: string | null;
+  sale_price: number | null;
+  grantor_name: string | null;
+  grantee_name: string | null;
+  property_address: string | null;
 }
 
 export interface Parcel {
@@ -1113,6 +2213,19 @@ export interface ParcelSoldEvent {
   source_run_id?: string | null;
 }
 
+export interface ParcelTaxStatus {
+  parcel_id: string;
+  /** listed = on at least one unexpired list; not_listed = an unexpired list covers the county and this parcel is not on it (read `list_scope`: never proof of payment); not_covered = no list for the county; unavailable = the layer could not be read. */
+  status: "listed" | "not_listed" | "not_covered" | "unavailable";
+  coverage: Array<TaxDelinquencyCoverage>;
+  /** in_sale, delinquent, sold, redeemed, then amount_due descending; at most 50. */
+  records: Array<TaxDelinquencyRecord>;
+  truncated: boolean;
+  note: string;
+  /** Present when the records were withheld by the lookup meter: `code` lookup_cap_reached or lookup_meter_unavailable (nothing charged). */
+  people_fields?: { [key: string]: unknown };
+}
+
 /** Additive marker on a record (or list) whose people fields were withheld because the caller has no PropRaven account. People fields are owner names, owner mailing / owner-address columns, entity principals, recorded-document party names and addresses (grantor/grantee, buyer/seller, prior/new owner), permit applicant names and the resolved `owner_contact` block. Withheld keys are kept and set to null (lists of people records become []), so the record's shape does not change. Payment alone (an x402 `X-PAYMENT` header or a prepaid `X-CREDIT-TOKEN`) is not an account: send an API key (`Authorization: Bearer pz_...`) or call from a signed-in session. */
 export interface PeopleFieldsWithheld {
   status: "withheld";
@@ -1258,6 +2371,61 @@ export interface RiskAssessment {
 /** A refusal that took nothing: the work was not done and nothing was charged. Retry after `Retry-After`. */
 export interface ServiceUnavailable {
   error: string;
+}
+
+/** A delinquency list that covers the parcel's county. `list_scope` says what absence from the list means. */
+export interface TaxDelinquencyCoverage {
+  source_id: string;
+  jurisdiction_name: string;
+  publisher: string;
+  dataset_kind: "delinquency" | "lien_sale_list" | "tax_sale_list" | "scavenger_list" | "foreclosure_list";
+  list_scope: string;
+  publisher_as_of: string;
+  as_of: string;
+  expires_on: string;
+  source_url: string;
+}
+
+/** Present when `tax_delinquent=true` was applied. */
+export interface TaxDelinquencyFilter {
+  applied: boolean;
+  statuses: Array<string>;
+  note: string;
+}
+
+/** One property-tax delinquency record as the publishing treasurer / tax collector lists it, placed on this parcel by the publisher's own parcel id. Never served past `expires_on`. */
+export interface TaxDelinquencyRecord {
+  record_uid: string;
+  /** ops.sources id (`tax_<st>_<jurisdiction>_<dataset>`). */
+  source_id: string;
+  jurisdiction_name: string;
+  publisher: string;
+  /** The parcel id exactly as the publisher prints it. */
+  publisher_parcel_id: string;
+  /** Only in_sale and delinquent count as delinquent. */
+  status: "in_sale" | "delinquent" | "sold" | "redeemed";
+  status_raw: string | null;
+  /** Only where the publisher says so; null = not published. */
+  payment_plan: boolean | null;
+  /** Only where the publisher says so; null = not published. */
+  bankruptcy: boolean | null;
+  tax_years: Array<number> | null;
+  first_tax_year: number | null;
+  last_tax_year: number | null;
+  years_delinquent: number | null;
+  /** Null when the list publishes no amount; what it is is `amount_basis`. */
+  amount_due: number | null;
+  amount_basis: "total_due" | "principal" | "lien_amount" | "minimum_bid" | "judgment" | null;
+  sale_kind: "tax_lien_sale" | "tax_deed_sale" | "sheriff_sale" | "scavenger_sale" | "certificate_sale" | null;
+  sale_date: string | null;
+  /** The publisher's own date for the list. */
+  publisher_as_of: string;
+  /** When PropRaven pulled the list. */
+  as_of: string;
+  expires_on: string;
+  match_method: "parcel_id_exact" | "parcel_id_normalized" | "address_exact";
+  match_confidence: number;
+  source_url: string;
 }
 
 export interface TrafficStationHistory {
@@ -1419,6 +2587,309 @@ export interface X402PaymentRequired {
     extra?: {
       name?: string;
       version?: string;
+    };
+  }>;
+}
+
+/** Up to five explicit provider regions at a common period/accepted snapshot. Gaps have a nullable value and explicit nullable reason; missing values are not zero. */
+export interface ZillowComparison {
+  schemaVersion: "zillow-market-v1";
+  datasetKey: string;
+  period: string;
+  referenceRegionId: string;
+  metrics: Array<{
+    rights: {
+      version: string;
+      evidenceUrl: string | null;
+      expiresAt: string | null;
+    } | null;
+    metric: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+    status: "available" | "unavailable";
+    reason: string | null;
+    definition: string;
+    unit: "usd" | "usd_per_month" | "count" | "fraction" | "days";
+    value: number | null;
+    period: string | null;
+    variant: {
+      datasetKey: string;
+      registryVersion: number;
+      universe: string;
+      frequency: "monthly";
+      smoothing: "smoothed";
+      seasonalAdjustment: "sa" | "not_stated";
+    } | null;
+    geography: {
+      providerId: string;
+      name: string;
+      type: "country" | "msa" | "county" | "zip";
+    } | null;
+    mapping: {
+      method: "postal_zip" | "county_fips" | "verified_crosswalk" | "explicit_provider_region";
+      version: string;
+      source: string;
+      fallbackReason: string | null;
+    } | null;
+    snapshot: {
+      id: string;
+      sha256: string;
+      retrievedAt: string;
+      acceptedAt: string;
+      latestPeriod: string;
+      stale: boolean;
+    } | null;
+    annualChange: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    monthlyChange: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    rentAcceleration: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    points: Array<{
+      period: string;
+      value: number | null;
+    }>;
+    sourceUrl: string;
+    attribution: string;
+  }>;
+  gaps: Array<{
+    regionId: string;
+    value: number | null;
+    reason: string | null;
+    unit: "days" | "percentage_points";
+  }>;
+}
+
+export type ZillowComparisonResponse = ZillowComparison | ZillowPropertyComparison;
+
+/** Each metric carries its own actual geography and missing reason. canonical_id is omitted when source rights prevent parcel resolution. */
+export interface ZillowContext {
+  schemaVersion: "zillow-market-v1";
+  status: "available" | "partial" | "unavailable";
+  canonical_id?: string;
+  requestedGeography: {
+    zip5: string | null;
+    countyFips: string | null;
+    state: string | null;
+    cbsa: string | null;
+  };
+  metrics: Array<{
+    rights: {
+      version: string;
+      evidenceUrl: string | null;
+      expiresAt: string | null;
+    } | null;
+    metric: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+    status: "available" | "unavailable";
+    reason: string | null;
+    definition: string;
+    unit: "usd" | "usd_per_month" | "count" | "fraction" | "days";
+    value: number | null;
+    period: string | null;
+    variant: {
+      datasetKey: string;
+      registryVersion: number;
+      universe: string;
+      frequency: "monthly";
+      smoothing: "smoothed";
+      seasonalAdjustment: "sa" | "not_stated";
+    } | null;
+    geography: {
+      providerId: string;
+      name: string;
+      type: "country" | "msa" | "county" | "zip";
+    } | null;
+    mapping: {
+      method: "postal_zip" | "county_fips" | "verified_crosswalk" | "explicit_provider_region";
+      version: string;
+      source: string;
+      fallbackReason: string | null;
+    } | null;
+    snapshot: {
+      id: string;
+      sha256: string;
+      retrievedAt: string;
+      acceptedAt: string;
+      latestPeriod: string;
+      stale: boolean;
+    } | null;
+    annualChange: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    monthlyChange: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    rentAcceleration: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: string;
+    } | null;
+    points: Array<{
+      period: string;
+      value: number | null;
+    }>;
+    sourceUrl: string;
+    attribution: string;
+  }>;
+  reason: string | null;
+  rights: {
+    status: "approved" | "unknown" | "denied";
+    use: "display" | "agent" | "export";
+    evidenceUrl: string | null;
+  };
+}
+
+/** Regional provider metric with its actual geography, variant, period, accepted snapshot and source attribution. Never a parcel value, achieved rent or automatic scenario input. */
+export interface ZillowMetric {
+  rights: {
+    version: string;
+    evidenceUrl: string | null;
+    expiresAt: string | null;
+  } | null;
+  metric: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+  status: "available" | "unavailable";
+  reason: string | null;
+  definition: string;
+  unit: "usd" | "usd_per_month" | "count" | "fraction" | "days";
+  value: number | null;
+  period: string | null;
+  variant: {
+    datasetKey: string;
+    registryVersion: number;
+    universe: string;
+    frequency: "monthly";
+    smoothing: "smoothed";
+    seasonalAdjustment: "sa" | "not_stated";
+  } | null;
+  geography: {
+    providerId: string;
+    name: string;
+    type: "country" | "msa" | "county" | "zip";
+  } | null;
+  mapping: {
+    method: "postal_zip" | "county_fips" | "verified_crosswalk" | "explicit_provider_region";
+    version: string;
+    source: string;
+    fallbackReason: string | null;
+  } | null;
+  snapshot: {
+    id: string;
+    sha256: string;
+    retrievedAt: string;
+    acceptedAt: string;
+    latestPeriod: string;
+    stale: boolean;
+  } | null;
+  annualChange: {
+    value: number | null;
+    unit: "percent" | "percentage_points" | "days";
+    reason?: string;
+  } | null;
+  monthlyChange: {
+    value: number | null;
+    unit: "percent" | "percentage_points" | "days";
+    reason?: string;
+  } | null;
+  rentAcceleration: {
+    value: number | null;
+    unit: "percent" | "percentage_points" | "days";
+    reason?: string;
+  } | null;
+  points: Array<{
+    period: string;
+    value: number | null;
+  }>;
+  sourceUrl: string;
+  attribution: string;
+}
+
+export interface ZillowPropertyComparison {
+  schemaVersion: "zillow-property-comparison-v1";
+  canonical_id?: string;
+  metric: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+  period: string;
+  asOf: string;
+  reference: "county" | "metro" | "national" | null;
+  items: Array<{
+    level: "county" | "metro" | "national";
+    datasetKey: string | null;
+    result: {
+      rights: {
+        version: string;
+        evidenceUrl: string | null;
+        expiresAt: string | null;
+      } | null;
+      metric: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+      status: "available" | "unavailable";
+      reason: "missing_period" | "nonpositive_denominator" | "non_finite_result" | "not_applicable" | "mapping_unavailable" | "no_coverage" | "suppressed" | "historical_vintage_unavailable" | "rights_unavailable" | "disabled" | "incompatible_variant" | null;
+      definition: string;
+      unit: "usd" | "usd_per_month" | "count" | "fraction" | "days";
+      value: number | null;
+      period: string | null;
+      variant: {
+        datasetKey: string;
+        registryVersion: number;
+        universe: string;
+        frequency: "monthly";
+        smoothing: "smoothed";
+        seasonalAdjustment: "sa" | "not_stated";
+      } | null;
+      geography: {
+        providerId: string;
+        name: string;
+        type: "country" | "msa" | "county" | "zip";
+      } | null;
+      mapping: {
+        method: "postal_zip" | "county_fips" | "verified_crosswalk" | "explicit_provider_region";
+        version: string;
+        source: string;
+        fallbackReason: string | null;
+      } | null;
+      snapshot: {
+        id: string;
+        sha256: string;
+        retrievedAt: string;
+        acceptedAt: string;
+        latestPeriod: string;
+        stale: boolean;
+      } | null;
+      annualChange: {
+        value: number | null;
+        unit: "percent" | "percentage_points" | "days";
+        reason?: "missing_period" | "nonpositive_denominator" | "non_finite_result" | "not_applicable" | "mapping_unavailable" | "no_coverage" | "suppressed" | "historical_vintage_unavailable" | "rights_unavailable" | "disabled" | "incompatible_variant";
+      } | null;
+      monthlyChange: {
+        value: number | null;
+        unit: "percent" | "percentage_points" | "days";
+        reason?: "missing_period" | "nonpositive_denominator" | "non_finite_result" | "not_applicable" | "mapping_unavailable" | "no_coverage" | "suppressed" | "historical_vintage_unavailable" | "rights_unavailable" | "disabled" | "incompatible_variant";
+      } | null;
+      rentAcceleration: {
+        value: number | null;
+        unit: "percent" | "percentage_points" | "days";
+        reason?: "missing_period" | "nonpositive_denominator" | "non_finite_result" | "not_applicable" | "mapping_unavailable" | "no_coverage" | "suppressed" | "historical_vintage_unavailable" | "rights_unavailable" | "disabled" | "incompatible_variant";
+      } | null;
+      points: Array<{
+        period: string;
+        value: number | null;
+      }>;
+      sourceUrl: string;
+      attribution: string;
+    };
+    gap: {
+      value: number | null;
+      unit: "percent" | "percentage_points" | "days";
+      reason?: "missing_period" | "nonpositive_denominator" | "non_finite_result" | "not_applicable" | "mapping_unavailable" | "no_coverage" | "suppressed" | "historical_vintage_unavailable" | "rights_unavailable" | "disabled" | "incompatible_variant";
     };
   }>;
 }
@@ -1763,6 +3234,12 @@ export interface DealsAbsenteeParams {
    * Query parameter `out_of_state`.
    */
   out_of_state?: boolean;
+  /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter.
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
   /** Query parameter `limit`. */
   limit?: number;
   /** Query parameter `offset`. */
@@ -1790,6 +3267,7 @@ export interface DealsAbsenteeResponse {
   total: number;
   limit: number;
   offset: number;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** One item yielded by `deals.absenteeAll`. */
@@ -1902,6 +3380,12 @@ export interface DealsEntitiesParams {
    */
   top?: boolean;
   /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter. Parcel list only (400 with top=true and no geography or search).
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
+  /**
    * Page size, max 500.
    *
    * Query parameter `limit`.
@@ -1921,6 +3405,7 @@ export type DealsEntitiesResponse = {
   total: number;
   limit: number;
   offset: number;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 } | {
   data?: Array<EntityAggregate>;
   summary?: EntitySummary;
@@ -1966,6 +3451,12 @@ export interface DealsFlipsParams {
    * Query parameter `view`.
    */
   view?: "flippers";
+  /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter. Parcel view only (400 with view=flippers).
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
   /** Query parameter `limit`. */
   limit?: number;
   /** Query parameter `offset`. */
@@ -1995,6 +3486,7 @@ export interface DealsFlipsResponse {
   total: number;
   limit: number;
   offset: number;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** One item yielded by `deals.flipsAll`. */
@@ -2035,6 +3527,12 @@ export interface DealsHighLandRatioParams {
    */
   zoning?: string;
   /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter.
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
+  /**
    * Page size, max 500.
    *
    * Query parameter `limit`.
@@ -2054,6 +3552,7 @@ export interface DealsHighLandRatioResponse {
   total: number;
   limit: number;
   offset: number;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** One item yielded by `deals.highLandRatioAll`. */
@@ -2141,6 +3640,12 @@ export interface DealsLongHoldParams {
    */
   min_value?: number;
   /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter.
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
+  /**
    * Page size, max 500.
    *
    * Query parameter `limit`.
@@ -2160,6 +3665,7 @@ export interface DealsLongHoldResponse {
   total: number;
   limit: number;
   offset: number;
+  tax_delinquency_filter?: TaxDelinquencyFilter;
 }
 
 /** One item yielded by `deals.longHoldAll`. */
@@ -2354,6 +3860,101 @@ export interface FreshnessGetResponse {
   parcel_count: number;
 }
 
+// POST /api/v1/intelligence/scenarios (intelligence.createScenario)
+
+/** Parameters for `intelligence.createScenario`. */
+export interface IntelligenceCreateScenarioParams {
+  /** Body field `run_id`. */
+  run_id: string;
+  /** Body field `label`. */
+  label: "base" | "downside" | "upside";
+  /** Body field `parent_revision_id`. */
+  parent_revision_id?: string;
+  /** Body field `assumptions`. */
+  assumptions: {
+    currency: string;
+    gross_completed_sale: string;
+    selling_costs: string;
+    costs: Array<{
+      bucket: "hard" | "soft" | "contingency" | "carry" | "other_nonland";
+      amount: string;
+      currency: string;
+    }>;
+    required_profit_dollars: string;
+    fixed_acquisition_costs: string;
+    acquisition_cost_rate: string;
+    profit_mode: "fixed_dollars";
+    carry_mode: "purchase_independent";
+    input_source: "user_input";
+  };
+}
+
+/** Success response of `intelligence.createScenario` (POST /api/v1/intelligence/scenarios). */
+export type IntelligenceCreateScenarioResponse = IntelligenceScenarioRevision;
+
+// GET /api/v1/intelligence/runs/{runId}/handoff (intelligence.handoff)
+
+/** Parameters for `intelligence.handoff`. */
+export interface IntelligenceHandoffParams {
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "export" | "ai";
+  /**
+   * Optional saved scenario revision belonging to the same run and creator.
+   *
+   * Query parameter `scenario_id`.
+   */
+  scenario_id?: IntelligenceRetainedId;
+}
+
+/** Success response of `intelligence.handoff` (GET /api/v1/intelligence/runs/{runId}/handoff). */
+export type IntelligenceHandoffResponse = IntelligenceHandoff;
+
+// GET /api/v1/intelligence/runs/{runId} (intelligence.run)
+
+/** Parameters for `intelligence.run`. */
+export interface IntelligenceRunParams {
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "export" | "ai";
+}
+
+/** Success response of `intelligence.run` (GET /api/v1/intelligence/runs/{runId}). */
+export type IntelligenceRunResponse = IntelligenceRunDetail;
+
+// GET /api/v1/parcels/{id}/signals (intelligence.signals)
+
+/** Parameters for `intelligence.signals`. */
+export interface IntelligenceSignalsParams {
+  /**
+   * Effective-time cutoff; explicit UTC timestamp. Defaults to the service capture clock. Future values rejected.
+   *
+   * Query parameter `as_of`.
+   */
+  as_of?: IntelligenceInstant;
+  /**
+   * Only observations known by this time contribute. Defaults to the same capture clock; original knowledge is never backdated from a publication or vintage.
+   *
+   * Query parameter `knowledge_cutoff`.
+   */
+  knowledge_cutoff?: IntelligenceInstant;
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "ai";
+}
+
+/** Success response of `intelligence.signals` (GET /api/v1/parcels/{id}/signals). */
+export type IntelligenceSignalsResponse = IntelligenceRun;
+
 // GET /api/v1/leads/find (leads.find)
 
 /** Parameters for `leads.find`. */
@@ -2413,6 +4014,12 @@ export interface LeadsFindParams {
    */
   mail_ready?: boolean;
   /**
+   * true = only parcels on a treasurer's or tax collector's property-tax delinquency / lien-sale / tax-sale list as of today (status delinquent or in_sale; redeemed and sold never count; expired records never used). Pilot jurisdictions only: a parcel elsewhere never matches. false or absent = no filter. Requires an account, preview included (401 `account_required` otherwise). Parcel-grain signals only (400 on portfolio_owner).
+   *
+   * Query parameter `tax_delinquent`.
+   */
+  tax_delinquent?: boolean;
+  /**
    * x402 payment, sent TOGETHER with your account credentials (Authorization: Bearer pz_...) -- a payment alone is not an account and is refused with 401 before it is verified: a base64-encoded signed x402 PaymentPayload (EIP-3009 transferWithAuthorization over USDC on Base). The signed amount must equal this pull's quoted maxAmountRequired (see the 402 body, or call with preview=true first). Ignored on a preview call, which is free.
    *
    * Header `X-PAYMENT`.
@@ -2422,6 +4029,100 @@ export interface LeadsFindParams {
 
 /** Success response of `leads.find` (GET /api/v1/leads/find). */
 export type LeadsFindResponse = LeadFeedPreview | LeadFeed;
+
+// GET /api/v1/licensees/firms (licensees.firms)
+
+/** Parameters for `licensees.firms`. */
+export interface LicenseesFirmsParams {
+  /**
+   * A state the licensee layer serves (Texas licensee files are a QA witness and never served).
+   *
+   * Query parameter `state`.
+   */
+  state: "FL" | "CA" | "NY" | "CT" | "VA";
+  /**
+   * License profession.
+   *
+   * Query parameter `profession`.
+   */
+  profession?: "real_estate" | "insurance" | "cpa" | "cam";
+  /**
+   * City as the licensee address publishes it (case-insensitive). A city or a zip is required.
+   *
+   * Query parameter `city`.
+   */
+  city?: string;
+  /**
+   * 5-digit ZIP. A city or a zip is required.
+   *
+   * Query parameter `zip`.
+   */
+  zip?: string;
+  /**
+   * License status as published, mapped.
+   *
+   * Query parameter `status`.
+   */
+  status?: "active" | "inactive" | "delinquent" | "void" | "expired" | "other" | "any";
+  /**
+   * Minimum distinct locations per firm in the place.
+   *
+   * Query parameter `min_locations`.
+   */
+  min_locations?: number;
+  /**
+   * Firms returned (largest first).
+   *
+   * Query parameter `limit`.
+   */
+  limit?: number;
+}
+
+/** Success response of `licensees.firms` (GET /api/v1/licensees/firms). */
+export interface LicenseesFirmsResponse {
+  query: { [key: string]: unknown };
+  firm_count: number;
+  firm_total: number;
+  truncated: boolean;
+  firms: Array<{
+    firm_key?: string;
+    name?: string | null;
+    profession?: string;
+    location_count?: number;
+    license_count?: number;
+    issuers?: Array<string>;
+    locations?: Array<{
+      license_uid?: string;
+      source_id?: string;
+      issuer_name?: string;
+      license_class?: string;
+      license_number?: string;
+      status?: "active" | "inactive" | "delinquent" | "void" | "expired" | "other";
+      status_raw?: string;
+      party_type?: "firm" | "branch" | "person";
+      person_shaped?: boolean;
+      dba?: string | null;
+      addr_type?: "business" | "mailing" | "address_of_record";
+      address_line?: string | null;
+      unit?: string | null;
+      city?: string | null;
+      state?: string | null;
+      zip5?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      match_confidence?: number | null;
+      as_of?: string | null;
+      name?: string | null;
+      /** Canonical parcel id the address matched, when it matched. */
+      parcel_id?: string | null;
+      operates_here?: boolean;
+    }>;
+    locations_truncated?: boolean;
+  }>;
+  note: string;
+  /** Present when person-shaped licensee fields were withheld from this caller (null values, keys kept). */
+  people_fields?: { [key: string]: unknown };
+}
 
 // POST /api/v1/lookup/batch (lookup.batch)
 
@@ -2504,6 +4205,51 @@ export interface LookupGetResponse {
   };
 }
 
+// GET /api/v1/market/zillow/compare (market.compareZillowMarkets)
+
+/** Parameters for `market.compareZillowMarkets`. */
+export interface MarketCompareZillowMarketsParams {
+  /**
+   * Exact enabled dataset registry key (for example zori_metro_monthly); unknown keys rejected.
+   *
+   * Query parameter `dataset_key`.
+   */
+  dataset_key?: string;
+  /**
+   * One to five comma-separated distinct provider IDs; first is reference.
+   *
+   * Query parameter `region_ids`.
+   */
+  region_ids?: string;
+  /**
+   * Common monthly reference period.
+   *
+   * Query parameter `period`.
+   */
+  period: string;
+  /**
+   * Optional explicit-offset timestamp for the accepted source vintage known at that time. Future/invalid times rejected; unavailable historical vintages are not reconstructed from current data.
+   *
+   * Query parameter `as_of`.
+   */
+  as_of?: string;
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "agent" | "export";
+  /** Query parameter `parcel_id`. */
+  parcel_id?: IntelligenceParcelId;
+  /** Query parameter `metric`. */
+  metric?: "zori" | "zhvi" | "inventory" | "price_cut_share" | "median_days_to_pending";
+  /** Query parameter `window_months`. */
+  window_months?: "12" | "36" | "60";
+}
+
+/** Success response of `market.compareZillowMarkets` (GET /api/v1/market/zillow/compare). */
+export type MarketCompareZillowMarketsResponse = ZillowComparisonResponse;
+
 // GET /api/v1/market/counties (market.counties)
 
 /** Parameters for `market.counties`. */
@@ -2559,6 +4305,8 @@ export interface MarketCountiesResponse {
     total_volume: number | null;
     price_yoy_pct: number | null;
     avg_dom: number | null;
+    under_review?: Array<string | null>;
+    stale_quarter?: boolean | null;
     state_abbr?: string;
     median_price?: number;
     avg_price?: number;
@@ -2568,10 +4316,11 @@ export interface MarketCountiesResponse {
   }>;
   summary: {
     total_counties: number;
-    total_sales: number;
+    total_sales: number | null;
     overall_median_price: number;
-    total_volume: number;
+    total_volume: number | null;
     avg_yoy_pct: number;
+    under_review?: Array<string | null>;
   };
   total: number;
   limit: number;
@@ -2941,6 +4690,90 @@ export interface MarketTrendsResponse {
   mode: string;
 }
 
+// GET /api/v1/market/zillow/context (market.zillowContext)
+
+/** Parameters for `market.zillowContext`. */
+export interface MarketZillowContextParams {
+  /**
+   * Canonical or legacy county5 parcel identity. The server derives trusted geography after source-use approval.
+   *
+   * Query parameter `parcel_id`.
+   */
+  parcel_id: IntelligenceParcelId;
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "agent" | "export";
+  /**
+   * Optional explicit-offset timestamp for the accepted source vintage known at that time. Future/invalid times rejected; unavailable historical vintages are not reconstructed from current data.
+   *
+   * Query parameter `as_of`.
+   */
+  as_of?: string;
+  /**
+   * Comma-separated unique metric names; defaults to all five. Duplicate names rejected.
+   *
+   * Query parameter `metrics`.
+   */
+  metrics?: string;
+  /**
+   * Number of calendar months displayed; missing months remain gaps.
+   *
+   * Query parameter `window_months`.
+   */
+  window_months?: "12" | "36" | "60";
+}
+
+/** Success response of `market.zillowContext` (GET /api/v1/market/zillow/context). */
+export type MarketZillowContextResponse = ZillowContext;
+
+// GET /api/v1/market/zillow/timeseries (market.zillowTimeseries)
+
+/** Parameters for `market.zillowTimeseries`. */
+export interface MarketZillowTimeseriesParams {
+  /**
+   * Exact enabled dataset registry key (for example zori_metro_monthly); unknown keys rejected.
+   *
+   * Query parameter `dataset_key`.
+   */
+  dataset_key: string;
+  /**
+   * Explicit Zillow provider region identifier.
+   *
+   * Query parameter `region_id`.
+   */
+  region_id: string;
+  /**
+   * Inclusive first calendar month.
+   *
+   * Query parameter `start_period`.
+   */
+  start_period: string;
+  /**
+   * Inclusive final calendar month; at most599 months after start.
+   *
+   * Query parameter `end_period`.
+   */
+  end_period: string;
+  /**
+   * Optional explicit-offset timestamp for the accepted source vintage known at that time. Future/invalid times rejected; unavailable historical vintages are not reconstructed from current data.
+   *
+   * Query parameter `as_of`.
+   */
+  as_of?: string;
+  /**
+   * Requested use; checked against current source rights. Agent use is not an external send.
+   *
+   * Query parameter `use`.
+   */
+  use?: "display" | "agent" | "export";
+}
+
+/** Success response of `market.zillowTimeseries` (GET /api/v1/market/zillow/timeseries). */
+export type MarketZillowTimeseriesResponse = ZillowMetric;
+
 // GET /api/v1/owners/card (owners.card)
 
 /** Parameters for `owners.card`. */
@@ -3235,8 +5068,8 @@ export type OwnersTransactionsParams = Record<string, never>;
 
 /** Success response of `owners.transactions` (GET /api/v1/owners/{name}/transactions). */
 export interface OwnersTransactionsResponse {
-  data?: Array<OwnerTransaction>;
-  count?: number;
+  data: Array<OwnerTransaction>;
+  count: number;
 }
 
 // GET /api/v1/parcels/{id}/assessment-history (parcels.assessmentHistory)
@@ -3555,6 +5388,47 @@ export interface ParcelsOccupantsResponse {
     lu_class: string | null;
   }>;
   truncated: boolean;
+  /** Licensed businesses the issuing state boards place at this parcel (FL, CA, NY, CT, VA). Present for an account only; a person-shaped row (a licensed individual or a sole proprietorship) is people data and each response serving one is logged. `status: unavailable` means the layer could not be read, never 'none here'. */
+  licensees?: {
+    status: "served" | "unavailable";
+    count: number;
+    truncated: boolean;
+    as_of: string | null;
+    rows: Array<{
+      license_uid?: string;
+      source_id?: string;
+      issuer_name?: string;
+      profession?: "real_estate" | "insurance" | "cpa" | "cam";
+      license_class?: string;
+      license_number?: string;
+      status?: "active" | "inactive" | "delinquent" | "void" | "expired" | "other";
+      status_raw?: string;
+      party_type?: "firm" | "branch" | "person";
+      person_shaped?: boolean;
+      display_name?: string | null;
+      dba?: string | null;
+      firm_name?: string | null;
+      firm_license_uid?: string | null;
+      addr_type?: "business" | "mailing" | "address_of_record";
+      address_line?: string | null;
+      unit?: string | null;
+      city?: string | null;
+      state?: string | null;
+      zip5?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      match_method?: string;
+      match_confidence?: number;
+      operates_basis?: string;
+      parcel_lu_class?: string | null;
+      first_seen?: string | null;
+      last_seen?: string | null;
+      as_of?: string | null;
+    }>;
+    note: string;
+    /** Present when person-shaped licensee fields were withheld from this caller (null values, keys kept). */
+    people_fields?: { [key: string]: unknown };
+  };
 }
 
 // GET /api/v1/parcels/{id}/owner (parcels.owner)
@@ -3866,6 +5740,14 @@ export interface ParcelsRiskScoreResponse {
   preview: boolean;
   note: string;
 }
+
+// GET /api/v1/parcels/{id}/tax-status (parcels.taxStatus)
+
+/** Parameters for `parcels.taxStatus` (the operation takes none). */
+export type ParcelsTaxStatusParams = Record<string, never>;
+
+/** Success response of `parcels.taxStatus` (GET /api/v1/parcels/{id}/tax-status). */
+export type ParcelsTaxStatusResponse = ParcelTaxStatus;
 
 // GET /api/v1/parcels/{id}/traffic-history (parcels.trafficHistory)
 

@@ -11,7 +11,9 @@ import {
   CrimeResource,
   DealsResource,
   FreshnessResource,
+  IntelligenceResource,
   LeadsResource,
+  LicenseesResource,
   LookupResource,
   MarketResource,
   OwnersResource,
@@ -41,15 +43,19 @@ export abstract class GeneratedClient extends BaseClient {
   readonly deals: DealsResource = new DealsResource(this);
   /** 2 operations. */
   readonly freshness: FreshnessResource = new FreshnessResource(this);
+  /** 4 operations. */
+  readonly intelligence: IntelligenceResource = new IntelligenceResource(this);
   /** 1 operation. */
   readonly leads: LeadsResource = new LeadsResource(this);
+  /** 1 operation. */
+  readonly licensees: LicenseesResource = new LicenseesResource(this);
   /** 2 operations. */
   readonly lookup: LookupResource = new LookupResource(this);
-  /** 5 operations. */
+  /** 8 operations. */
   readonly market: MarketResource = new MarketResource(this);
   /** 7 operations. */
   readonly owners: OwnersResource = new OwnersResource(this);
-  /** 16 operations. */
+  /** 17 operations. */
   readonly parcels: ParcelsResource = new ParcelsResource(this);
   /** 4 operations. */
   readonly search: SearchResource = new SearchResource(this);
@@ -66,4 +72,4 @@ export abstract class GeneratedClient extends BaseClient {
 }
 
 /** Number of operations generated from openapi.json. */
-export const OPERATION_COUNT = 70;
+export const OPERATION_COUNT = 79;

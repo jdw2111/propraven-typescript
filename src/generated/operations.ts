@@ -185,6 +185,9 @@ export const deals_absentee: OperationDescriptor = {
     "out_of_state": {
       "name": "out_of_state"
     },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
+    },
     "limit": {
       "name": "limit"
     },
@@ -268,6 +271,9 @@ export const deals_entities: OperationDescriptor = {
     "top": {
       "name": "top"
     },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
+    },
     "limit": {
       "name": "limit"
     },
@@ -308,6 +314,9 @@ export const deals_flips: OperationDescriptor = {
     "view": {
       "name": "view"
     },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
+    },
     "limit": {
       "name": "limit"
     },
@@ -347,6 +356,9 @@ export const deals_highLandRatio: OperationDescriptor = {
     },
     "zoning": {
       "name": "zoning"
+    },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
     },
     "limit": {
       "name": "limit"
@@ -421,6 +433,9 @@ export const deals_longHold: OperationDescriptor = {
     },
     "min_value": {
       "name": "min_value"
+    },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
     },
     "limit": {
       "name": "limit"
@@ -544,6 +559,98 @@ export const freshness_get: OperationDescriptor = {
   "accept": "application/json"
 };
 
+export const intelligence_createScenario: OperationDescriptor = {
+  "operationId": "createIntelligenceScenario",
+  "group": "intelligence",
+  "method": "createScenario",
+  "httpMethod": "POST",
+  "path": "/api/v1/intelligence/scenarios",
+  "pathParams": [],
+  "query": {},
+  "headers": {},
+  "body": {
+    "kind": "fields",
+    "fields": {
+      "run_id": "run_id",
+      "label": "label",
+      "parent_revision_id": "parent_revision_id",
+      "assumptions": "assumptions"
+    },
+    "required": true
+  },
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const intelligence_handoff: OperationDescriptor = {
+  "operationId": "getIntelligenceHandoff",
+  "group": "intelligence",
+  "method": "handoff",
+  "httpMethod": "GET",
+  "path": "/api/v1/intelligence/runs/{runId}/handoff",
+  "pathParams": [
+    "runId"
+  ],
+  "query": {
+    "use": {
+      "name": "use"
+    },
+    "scenario_id": {
+      "name": "scenario_id"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const intelligence_run: OperationDescriptor = {
+  "operationId": "getIntelligenceRun",
+  "group": "intelligence",
+  "method": "run",
+  "httpMethod": "GET",
+  "path": "/api/v1/intelligence/runs/{runId}",
+  "pathParams": [
+    "runId"
+  ],
+  "query": {
+    "use": {
+      "name": "use"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const intelligence_signals: OperationDescriptor = {
+  "operationId": "getPropertySignals",
+  "group": "intelligence",
+  "method": "signals",
+  "httpMethod": "GET",
+  "path": "/api/v1/parcels/{id}/signals",
+  "pathParams": [
+    "id"
+  ],
+  "query": {
+    "as_of": {
+      "name": "as_of"
+    },
+    "knowledge_cutoff": {
+      "name": "knowledge_cutoff"
+    },
+    "use": {
+      "name": "use"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
 export const leads_find: OperationDescriptor = {
   "operationId": "findLeads",
   "group": "leads",
@@ -578,11 +685,50 @@ export const leads_find: OperationDescriptor = {
     },
     "mail_ready": {
       "name": "mail_ready"
+    },
+    "tax_delinquent": {
+      "name": "tax_delinquent"
     }
   },
   "headers": {
     "payment": "X-PAYMENT"
   },
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const licensees_firms: OperationDescriptor = {
+  "operationId": "searchLicenseeFirms",
+  "group": "licensees",
+  "method": "firms",
+  "httpMethod": "GET",
+  "path": "/api/v1/licensees/firms",
+  "pathParams": [],
+  "query": {
+    "state": {
+      "name": "state"
+    },
+    "profession": {
+      "name": "profession"
+    },
+    "city": {
+      "name": "city"
+    },
+    "zip": {
+      "name": "zip"
+    },
+    "status": {
+      "name": "status"
+    },
+    "min_locations": {
+      "name": "min_locations"
+    },
+    "limit": {
+      "name": "limit"
+    }
+  },
+  "headers": {},
   "body": null,
   "response": "json",
   "accept": "application/json"
@@ -618,6 +764,45 @@ export const lookup_get: OperationDescriptor = {
   "query": {
     "q": {
       "name": "q"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const market_compareZillowMarkets: OperationDescriptor = {
+  "operationId": "compareZillowMarkets",
+  "group": "market",
+  "method": "compareZillowMarkets",
+  "httpMethod": "GET",
+  "path": "/api/v1/market/zillow/compare",
+  "pathParams": [],
+  "query": {
+    "dataset_key": {
+      "name": "dataset_key"
+    },
+    "region_ids": {
+      "name": "region_ids"
+    },
+    "period": {
+      "name": "period"
+    },
+    "as_of": {
+      "name": "as_of"
+    },
+    "use": {
+      "name": "use"
+    },
+    "parcel_id": {
+      "name": "parcel_id"
+    },
+    "metric": {
+      "name": "metric"
+    },
+    "window_months": {
+      "name": "window_months"
     }
   },
   "headers": {},
@@ -750,6 +935,69 @@ export const market_trends: OperationDescriptor = {
     },
     "state_fips": {
       "name": "state_fips"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const market_zillowContext: OperationDescriptor = {
+  "operationId": "getPropertyZillowContext",
+  "group": "market",
+  "method": "zillowContext",
+  "httpMethod": "GET",
+  "path": "/api/v1/market/zillow/context",
+  "pathParams": [],
+  "query": {
+    "parcel_id": {
+      "name": "parcel_id"
+    },
+    "use": {
+      "name": "use"
+    },
+    "as_of": {
+      "name": "as_of"
+    },
+    "metrics": {
+      "name": "metrics"
+    },
+    "window_months": {
+      "name": "window_months"
+    }
+  },
+  "headers": {},
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const market_zillowTimeseries: OperationDescriptor = {
+  "operationId": "getZillowTimeseries",
+  "group": "market",
+  "method": "zillowTimeseries",
+  "httpMethod": "GET",
+  "path": "/api/v1/market/zillow/timeseries",
+  "pathParams": [],
+  "query": {
+    "dataset_key": {
+      "name": "dataset_key"
+    },
+    "region_id": {
+      "name": "region_id"
+    },
+    "start_period": {
+      "name": "start_period"
+    },
+    "end_period": {
+      "name": "end_period"
+    },
+    "as_of": {
+      "name": "as_of"
+    },
+    "use": {
+      "name": "use"
     }
   },
   "headers": {},
@@ -1193,6 +1441,22 @@ export const parcels_riskScore: OperationDescriptor = {
   "headers": {
     "payment": "X-PAYMENT"
   },
+  "body": null,
+  "response": "json",
+  "accept": "application/json"
+};
+
+export const parcels_taxStatus: OperationDescriptor = {
+  "operationId": "getParcelTaxStatus",
+  "group": "parcels",
+  "method": "taxStatus",
+  "httpMethod": "GET",
+  "path": "/api/v1/parcels/{id}/tax-status",
+  "pathParams": [
+    "id"
+  ],
+  "query": {},
+  "headers": {},
   "body": null,
   "response": "json",
   "accept": "application/json"
@@ -1720,14 +1984,22 @@ export const operations: readonly OperationDescriptor[] = [
   deals_portfolioOwners,
   freshness_datasets,
   freshness_get,
+  intelligence_createScenario,
+  intelligence_handoff,
+  intelligence_run,
+  intelligence_signals,
   leads_find,
+  licensees_firms,
   lookup_batch,
   lookup_get,
+  market_compareZillowMarkets,
   market_counties,
   market_county,
   market_flips,
   market_snapshot,
   market_trends,
+  market_zillowContext,
+  market_zillowTimeseries,
   owners_card,
   owners_get,
   owners_portfolio,
@@ -1749,6 +2021,7 @@ export const operations: readonly OperationDescriptor[] = [
   parcels_report,
   parcels_risks,
   parcels_riskScore,
+  parcels_taxStatus,
   parcels_trafficHistory,
   parcels_violations,
   search_autocomplete,
